@@ -52,6 +52,7 @@ Most free online PDF utilities (like Smallpdf or iLovePDF) upload your documents
 
 - **Framework**: React 19 + TypeScript + Vite 8
 - **Styling**: Tailwind CSS v4 + Lucide Icons
+- **Package Manager**: pnpm (fast, disk space efficient & secure dependency isolation)
 - **PDF Engine**:
   - `pdf-lib`: Pure client-side PDF manipulation (merge, split, rotate, signature embedding, image conversion)
   - `pdfjs-dist`: Client-side rendering of page thumbnails via HTML5 canvas
@@ -63,23 +64,23 @@ Most free online PDF utilities (like Smallpdf or iLovePDF) upload your documents
 
 ### 1. Install Dependencies
 ```bash
-npm install
+pnpm install
 ```
 
 ### 2. Run Development Server
 ```bash
-npm run dev
+pnpm dev
 ```
 Open `http://localhost:5173` in your browser.
 
 ### 3. Run Automated Tests
 ```bash
-npm test
+pnpm test
 ```
 
 ### 4. Build for Production
 ```bash
-npm run build
+pnpm build
 ```
 The static build will be generated in `dist/`. It can be hosted on any static hosting service (Cloudflare Pages, GitHub Pages, Vercel, Netlify) or served locally.
 
