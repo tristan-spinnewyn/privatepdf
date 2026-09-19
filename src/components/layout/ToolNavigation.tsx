@@ -13,7 +13,6 @@ interface ToolDefinition {
   shortLabel: string;
   description: string;
   icon: React.ElementType;
-  badge?: string;
   colorClass: string;
 }
 
@@ -49,7 +48,6 @@ export const TOOLS: ToolDefinition[] = [
     description: 'Dessiner votre signature et poser la date directement',
     icon: PenTool,
     colorClass: 'from-emerald-500 to-teal-600',
-    badge: 'Populaire',
   },
   {
     id: 'image-converter',
@@ -58,7 +56,6 @@ export const TOOLS: ToolDefinition[] = [
     description: 'JPG, PNG, WebP, AVIF, HEIC (iOS), SVG, BMP, ICO',
     icon: Sparkles,
     colorClass: 'from-violet-600 to-indigo-600',
-    badge: 'Nouveau',
   },
   {
     id: 'images-to-pdf',
@@ -104,12 +101,6 @@ export const ToolNavigation: React.FC<ToolNavigationProps> = ({ activeTool, onSe
                 <Icon className="w-4 h-4" />
               </div>
               <span className="truncate">{tool.shortLabel}</span>
-
-              {tool.badge && (
-                <span className="hidden xl:inline-block absolute -top-1 -right-1 bg-gradient-to-r from-emerald-500 to-teal-600 text-white text-[9px] font-bold px-1.5 py-0.2 rounded-full uppercase tracking-wider shadow-xs">
-                  {tool.badge}
-                </span>
-              )}
             </button>
           );
         })}
