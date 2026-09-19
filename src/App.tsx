@@ -6,6 +6,8 @@ import { OrganizeTool } from './components/tools/OrganizeTool';
 import { SplitTool } from './components/tools/SplitTool';
 import { SignTool } from './components/tools/SignTool';
 import { ImagesToPdfTool } from './components/tools/ImagesToPdfTool';
+import { ImageConverterTool } from './components/tools/ImageConverterTool';
+import { PdfToImagesTool } from './components/tools/PdfToImagesTool';
 import type { ToolType } from './types';
 import { ShieldCheck, Zap, Lock, HardDriveDownload } from 'lucide-react';
 
@@ -22,8 +24,12 @@ export function App() {
         return <SplitTool />;
       case 'sign':
         return <SignTool />;
+      case 'image-converter':
+        return <ImageConverterTool />;
       case 'images-to-pdf':
         return <ImagesToPdfTool />;
+      case 'pdf-to-images':
+        return <PdfToImagesTool />;
       default:
         return <MergeTool />;
     }

@@ -1,4 +1,5 @@
 import { PDFDocument, degrees, rgb, StandardFonts } from 'pdf-lib';
+import { loadImageElement } from './image-service';
 
 export async function mergePdfs(files: File[]): Promise<Uint8Array> {
   const mergedPdf = await PDFDocument.create();
@@ -142,46 +143,31 @@ export async function signAndDatePdf(
 }
 
 /**
- * Converts any image file (PNG, JPG, WebP) to JPEG / PNG Uint8Array supported by pdf-lib
+ * Converts any image file (PNG, JPG, WebP, HEIC iOS, etc.) to JPEG Uint8Array supported by pdf-lib
  */
 async function processImageForPdf(file: File): Promise<{ bytes: Uint8Array; format: 'png' | 'jpeg'; width: number; height: number }> {
-  return new Promise((resolve, reject) => {
-    const img = new Image();
-    const url = URL.createObjectURL(file);
-    img.onload = () => {
-      URL.revokeObjectURL(url);
-      const canvas = document.createElement('canvas');
-      canvas.width = img.naturalWidth;
-      canvas.height = img.naturalHeight;
-      const ctx = canvas.getContext('2d');
-      if (!ctx) {
-        reject(new Error('Erreur canvas'));
-        return;
-      }
-      ctx.drawImage(img, 0, 0);
+  const img = await loadImageElement(file);
+  const canvas = document.createElement('canvas');
+  canvas.width = img.naturalWidth;
+  canvas.height = img.naturalHeight;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) throw new Error('Erreur canvas');
+  ctx.drawImage(img, 0, 0);
 
-      // Export as JPEG with 90% quality
-      canvas.toBlob(blob => {
-        if (!blob) {
-          reject(new Error('Conversion image échouée'));
-          return;
-        }
-        blob.arrayBuffer().then(buffer => {
-          resolve({
-            bytes: new Uint8Array(buffer),
-            format: 'jpeg',
-            width: img.naturalWidth,
-            height: img.naturalHeight,
-          });
-        });
-      }, 'image/jpeg', 0.90);
-    };
-    img.onerror = () => {
-      URL.revokeObjectURL(url);
-      reject(new Error(`Impossible de charger l'image ${file.name}`));
-    };
-    img.src = url;
+  const blob = await new Promise<Blob>((resolve, reject) => {
+    canvas.toBlob((b) => {
+      if (b) resolve(b);
+      else reject(new Error('Conversion image échouée'));
+    }, 'image/jpeg', 0.90);
   });
+
+  const buffer = await blob.arrayBuffer();
+  return {
+    bytes: new Uint8Array(buffer),
+    format: 'jpeg',
+    width: img.naturalWidth,
+    height: img.naturalHeight,
+  };
 }
 
 export async function imagesToPdf(

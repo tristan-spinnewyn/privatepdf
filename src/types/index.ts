@@ -1,4 +1,11 @@
-export type ToolType = 'merge' | 'organize' | 'split' | 'sign' | 'images-to-pdf';
+export type ToolType = 
+  | 'merge' 
+  | 'organize' 
+  | 'split' 
+  | 'sign' 
+  | 'images-to-pdf' 
+  | 'image-converter'
+  | 'pdf-to-images';
 
 export interface PdfFileItem {
   id: string;
@@ -33,4 +40,21 @@ export interface SignaturePlacement {
   yPercent: number; // 0 to 100
   widthPercent: number; // 0 to 100
   heightPercent: number; // 0 to 100
+}
+
+export type ImageFormat = 'jpg' | 'png' | 'webp' | 'avif' | 'bmp' | 'ico';
+
+export interface ImageConversionItem {
+  id: string;
+  file: File;
+  name: string;
+  originalFormat: string;
+  size: number;
+  previewUrl: string;
+  targetFormat: ImageFormat;
+  status: 'pending' | 'processing' | 'done' | 'error';
+  convertedBlob?: Blob;
+  convertedUrl?: string;
+  convertedSize?: number;
+  error?: string;
 }

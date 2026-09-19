@@ -1,5 +1,5 @@
 import React from 'react';
-import { Files, Layers, Scissors, PenTool, Image as ImageIcon } from 'lucide-react';
+import { Files, Layers, Scissors, PenTool, Image as ImageIcon, Sparkles, FileImage } from 'lucide-react';
 import type { ToolType } from '../../types';
 
 interface ToolNavigationProps {
@@ -52,12 +52,29 @@ export const TOOLS: ToolDefinition[] = [
     badge: 'Populaire',
   },
   {
+    id: 'image-converter',
+    label: 'Convertisseur d\'Images',
+    shortLabel: 'Convertir Image',
+    description: 'JPG, PNG, WebP, AVIF, HEIC (iOS), SVG, BMP, ICO',
+    icon: Sparkles,
+    colorClass: 'from-violet-600 to-indigo-600',
+    badge: 'Nouveau',
+  },
+  {
     id: 'images-to-pdf',
-    label: 'Images en PDF',
+    label: 'Images vers PDF',
     shortLabel: 'Images -> PDF',
-    description: 'Convertir vos photos (JPG, PNG, WebP) en PDF A4 propre',
+    description: 'Convertir vos photos (JPG, PNG, HEIC) en PDF A4 propre',
     icon: ImageIcon,
     colorClass: 'from-rose-500 to-red-600',
+  },
+  {
+    id: 'pdf-to-images',
+    label: 'PDF vers Images',
+    shortLabel: 'PDF -> Images',
+    description: 'Extraire les pages d\'un PDF en images haute définition',
+    icon: FileImage,
+    colorClass: 'from-teal-500 to-cyan-600',
   },
 ];
 

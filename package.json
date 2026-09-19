@@ -13,6 +13,8 @@
   "dependencies": {
     "canvas-confetti": "^1.9.4",
     "clsx": "^2.1.1",
+    "heic2any": "^0.0.4",
+    "jszip": "^3.10.2",
     "lucide-react": "^1.47.0",
     "pdf-lib": "^1.17.1",
     "pdfjs-dist": "^6.3.289",

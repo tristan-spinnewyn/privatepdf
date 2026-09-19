@@ -41,10 +41,21 @@ Most free online PDF utilities (like Smallpdf or iLovePDF) upload your documents
    - Customizable date stamp (defaults to current date).
    - **Interactive on-page placement**: drag and resize your signature and date directly on top of the rendered PDF page before exporting.
 
-5. **🖼️ Images to PDF**
-   - Convert images (JPG, PNG, WebP) of receipts, invoices, or ID cards into standardized A4 PDFs.
+5. **✨ Universal Image Converter (with Apple iOS HEIC support)**
+   - Convert between all major image formats: **JPG, PNG, WebP, AVIF, HEIC/HEIF (iPhone/iPad), SVG, BMP, ICO**.
+   - Direct support for iOS `.heic` photos without requiring any third-party app or upload.
+   - Configurable quality slider, scaling (100%, 75%, 50%, 25%), and ICO favicon dimensions (16x16 to 256x256).
+   - Batch conversion with one-click **ZIP download** or individual downloads.
+
+6. **🖼️ Images to PDF**
+   - Convert images (JPG, PNG, WebP, iOS HEIC) of receipts, invoices, or ID cards into standardized A4 PDFs.
    - Flexible orientation: Auto-detect based on photo aspect ratio, Portrait, or Landscape.
    - Margins: None (full bleed), Small (6mm), or Standard (12mm).
+
+7. **📸 PDF to Images**
+   - Extract every page of a PDF into crisp high-resolution images (PNG, JPG, WebP).
+   - Resolution presets: Standard (72 DPI), High Definition (144 DPI), or Print Quality (216 DPI).
+   - Batch export all pages as a ZIP archive.
 
 ---
 
@@ -56,6 +67,9 @@ Most free online PDF utilities (like Smallpdf or iLovePDF) upload your documents
 - **PDF Engine**:
   - `pdf-lib`: Pure client-side PDF manipulation (merge, split, rotate, signature embedding, image conversion)
   - `pdfjs-dist`: Client-side rendering of page thumbnails via HTML5 canvas
+- **Image Processing & Formats**:
+  - `heic2any`: Client-side WebAssembly conversion of Apple iOS HEIC / HEIF photos
+  - `jszip`: In-browser ZIP archive generation for batch downloads
 - **Confetti**: `canvas-confetti`
 
 ---
