@@ -101,7 +101,27 @@ pnpm test
 ```bash
 pnpm build
 ```
-The static build will be generated in `dist/`. It can be hosted on any static hosting service (Cloudflare Pages, GitHub Pages, Vercel, Netlify) or served locally.
+The static build will be generated in `dist/`.
+
+---
+
+## 🚢 Self-Hosting with Coolify
+
+PrivatePDF is 100% self-hostable with **Coolify** in just a few clicks:
+
+### Method 1: Git Repository (Recommended)
+1. In your Coolify dashboard, select **Projects** → **+ New Resource** → **Public/Private Git Repository**.
+2. Enter your repository URL (e.g. `https://github.com/tristan-spinnewyn/privatepdf` or SSH URL).
+3. Coolify will automatically detect the **Dockerfile**.
+4. Configure your domain (e.g. `https://pdf.yourdomain.com`).
+5. Set port to `80` (automatically detected).
+6. Click **Deploy**! Coolify will handle SSL/TLS certificates and automatic reverse proxying.
+
+### Method 2: Docker Compose
+```bash
+docker compose up -d --build
+```
+Access the application at `http://localhost:8080`.
 
 ---
 

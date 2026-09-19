@@ -1,0 +1,9 @@
+services:
+  privatepdf:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: privatepdf
+    restart: unless-stopped
+    ports:
+      - "8080:80"
