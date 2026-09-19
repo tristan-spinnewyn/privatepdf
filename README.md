@@ -57,12 +57,17 @@ Most free online PDF utilities (like Smallpdf or iLovePDF) upload your documents
    - Resolution presets: Standard (72 DPI), High Definition (144 DPI), or Print Quality (216 DPI).
    - Batch export all pages as a ZIP archive.
 
+8. **🌐 Internationalization (i18n)**
+   - Fully bilingual interface in **English** and **French**.
+   - Automatic browser language detection with instant switcher and local storage persistence.
+
 ---
 
 ## 🛠️ Tech Stack
 
 - **Framework**: React 19 + TypeScript + Vite 8
 - **Styling**: Tailwind CSS v4 + Lucide Icons
+- **Internationalization**: `i18next` + `react-i18next`
 - **Package Manager**: pnpm (fast, disk space efficient & secure dependency isolation)
 - **PDF Engine**:
   - `pdf-lib`: Pure client-side PDF manipulation (merge, split, rotate, signature embedding, image conversion)

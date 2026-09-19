@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Files, Layers, Scissors, PenTool, Image as ImageIcon, Sparkles, FileImage } from 'lucide-react';
 import type { ToolType } from '../../types';
 
@@ -9,9 +10,7 @@ interface ToolNavigationProps {
 
 interface ToolDefinition {
   id: ToolType;
-  label: string;
-  shortLabel: string;
-  description: string;
+  translationKey: string;
   icon: React.ElementType;
   colorClass: string;
 }
@@ -19,63 +18,51 @@ interface ToolDefinition {
 export const TOOLS: ToolDefinition[] = [
   {
     id: 'merge',
-    label: 'Fusionner des PDF',
-    shortLabel: 'Fusionner',
-    description: 'Combiner plusieurs PDF dans l’ordre de votre choix',
+    translationKey: 'tools.merge.shortLabel',
     icon: Files,
     colorClass: 'from-blue-500 to-indigo-600',
   },
   {
     id: 'organize',
-    label: 'Organiser & Pivoter',
-    shortLabel: 'Organiser',
-    description: 'Faire pivoter, supprimer ou réordonner les pages',
+    translationKey: 'tools.organize.shortLabel',
     icon: Layers,
     colorClass: 'from-amber-500 to-orange-600',
   },
   {
     id: 'split',
-    label: 'Découper & Extraire',
-    shortLabel: 'Découper',
-    description: 'Sélectionner des pages ou des plages à exporter',
+    translationKey: 'tools.split.shortLabel',
     icon: Scissors,
     colorClass: 'from-purple-500 to-pink-600',
   },
   {
     id: 'sign',
-    label: 'Signer & Dater',
-    shortLabel: 'Signer',
-    description: 'Dessiner votre signature et poser la date directement',
+    translationKey: 'tools.sign.shortLabel',
     icon: PenTool,
     colorClass: 'from-emerald-500 to-teal-600',
   },
   {
     id: 'image-converter',
-    label: 'Convertisseur d\'Images',
-    shortLabel: 'Convertir Image',
-    description: 'JPG, PNG, WebP, AVIF, HEIC (iOS), SVG, BMP, ICO',
+    translationKey: 'tools.imageConverter.shortLabel',
     icon: Sparkles,
     colorClass: 'from-violet-600 to-indigo-600',
   },
   {
     id: 'images-to-pdf',
-    label: 'Images vers PDF',
-    shortLabel: 'Images -> PDF',
-    description: 'Convertir vos photos (JPG, PNG, HEIC) en PDF A4 propre',
+    translationKey: 'tools.imagesToPdf.shortLabel',
     icon: ImageIcon,
     colorClass: 'from-rose-500 to-red-600',
   },
   {
     id: 'pdf-to-images',
-    label: 'PDF vers Images',
-    shortLabel: 'PDF -> Images',
-    description: 'Extraire les pages d\'un PDF en images haute définition',
+    translationKey: 'tools.pdfToImages.shortLabel',
     icon: FileImage,
     colorClass: 'from-teal-500 to-cyan-600',
   },
 ];
 
 export const ToolNavigation: React.FC<ToolNavigationProps> = ({ activeTool, onSelectTool }) => {
+  const { t } = useTranslation();
+
   return (
     <div className="w-full">
       <div className="flex items-center gap-2 p-1.5 bg-slate-200/70 backdrop-blur-xs rounded-2xl overflow-x-auto no-scrollbar shadow-inner">
@@ -100,7 +87,7 @@ export const ToolNavigation: React.FC<ToolNavigationProps> = ({ activeTool, onSe
               >
                 <Icon className="w-4 h-4" />
               </div>
-              <span className="truncate">{tool.shortLabel}</span>
+              <span className="truncate">{t(tool.translationKey)}</span>
             </button>
           );
         })}

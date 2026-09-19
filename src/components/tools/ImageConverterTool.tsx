@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Dropzone } from '../ui/Dropzone';
 import { convertImage, downloadFile, downloadZip, isHeicFile } from '../../lib/image-service';
 import { formatBytes } from '../../lib/pdf-service';
@@ -27,6 +28,7 @@ const FORMAT_OPTIONS: { id: ImageFormat; label: string; desc: string }[] = [
 ];
 
 export const ImageConverterTool: React.FC = () => {
+  const { t } = useTranslation();
   const [items, setItems] = useState<ImageConversionItem[]>([]);
   const [globalTargetFormat, setGlobalTargetFormat] = useState<ImageFormat>('jpg');
   const [quality, setQuality] = useState<number>(0.90);
@@ -128,7 +130,7 @@ export const ImageConverterTool: React.FC = () => {
         updatedItems[i] = {
           ...item,
           status: 'error',
-          error: 'Échec de conversion',
+          error: 'Conversion failed / Échec de conversion',
         };
         setItems([...updatedItems]);
       }
@@ -136,7 +138,7 @@ export const ImageConverterTool: React.FC = () => {
 
     setIsProcessing(false);
     fireSuccessConfetti();
-    setSuccessMessage('Conversion terminée avec succès !');
+    setSuccessMessage(t('tools.imageConverter.success'));
   };
 
   const handleDownloadSingle = (item: ImageConversionItem) => {
@@ -165,13 +167,13 @@ export const ImageConverterTool: React.FC = () => {
       <div className="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <h2 className="text-xl font-bold text-slate-900 tracking-tight">Convertisseur d'Images Universel</h2>
+            <h2 className="text-xl font-bold text-slate-900 tracking-tight">{t('tools.imageConverter.headerTitle')}</h2>
             <span className="text-[11px] font-bold bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded-full border border-indigo-200">
-              Photos iOS HEIC incluses
+              {t('tools.imageConverter.iosBadge')}
             </span>
           </div>
           <p className="text-sm text-slate-500 mt-0.5">
-            Convertissez instantanément vos photos et images entre tous les formats (JPG, PNG, WebP, AVIF, HEIC, SVG, BMP, ICO) 100% en local.
+            {t('tools.imageConverter.headerDesc')}
           </p>
         </div>
 
@@ -180,7 +182,7 @@ export const ImageConverterTool: React.FC = () => {
             onClick={clearAll}
             className="text-xs font-semibold text-rose-600 hover:text-rose-700 hover:bg-rose-50 px-3 py-2 rounded-xl transition-colors cursor-pointer self-start sm:self-auto"
           >
-            Tout effacer
+            {t('tools.merge.clearAll')}
           </button>
         )}
       </div>
@@ -206,8 +208,6 @@ export const ImageConverterTool: React.FC = () => {
           onFilesSelected={handleFilesSelected}
           accept="image/*,.heic,.heif,.svg,.bmp,.ico"
           multiple={true}
-          title="Sélectionnez ou déposez vos images ici"
-          description="Tous formats acceptés : JPG, PNG, WebP, AVIF, HEIC/HEIF (iPhone), SVG, BMP, ICO"
         />
       ) : (
         <div className="space-y-5">
@@ -217,7 +217,7 @@ export const ImageConverterTool: React.FC = () => {
               <div>
                 <label className="block text-xs font-bold text-slate-700 mb-2 flex items-center gap-1.5">
                   <RefreshCw className="w-3.5 h-3.5 text-indigo-600" />
-                  <span>Convertir toutes les images vers :</span>
+                  <span>{t('tools.imageConverter.convertAllTo')}</span>
                 </label>
                 <div className="flex flex-wrap gap-1.5">
                   {FORMAT_OPTIONS.map((fmt) => (
@@ -236,11 +236,11 @@ export const ImageConverterTool: React.FC = () => {
                 </div>
               </div>
 
-              {/* Quality slider (only for lossy formats) */}
+              {/* Quality slider */}
               {(globalTargetFormat === 'jpg' || globalTargetFormat === 'webp' || globalTargetFormat === 'avif') && (
                 <div className="w-full md:w-56">
                   <div className="flex items-center justify-between text-xs font-semibold text-slate-600 mb-1">
-                    <span>Qualité :</span>
+                    <span>{t('tools.imageConverter.quality')}</span>
                     <span className="font-mono text-indigo-600">{Math.round(quality * 100)}%</span>
                   </div>
                   <input
@@ -259,19 +259,19 @@ export const ImageConverterTool: React.FC = () => {
               {globalTargetFormat === 'ico' && (
                 <div>
                   <label className="block text-xs font-bold text-slate-700 mb-1">
-                    Taille de l'icône :
+                    {t('tools.imageConverter.icoSize')}
                   </label>
                   <select
                     value={icoSize}
                     onChange={(e) => setIcoSize(parseInt(e.target.value, 10))}
                     className="px-3 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-xl font-medium"
                   >
-                    <option value={16}>16 × 16 px (Favicon petit)</option>
-                    <option value={32}>32 × 32 px (Favicon standard)</option>
-                    <option value={48}>48 × 48 px (Windows standard)</option>
-                    <option value={64}>64 × 64 px (Haute résolution)</option>
-                    <option value={128}>128 × 128 px (Grand)</option>
-                    <option value={256}>256 × 256 px (HD Windows)</option>
+                    <option value={16}>16 × 16 px (Favicon)</option>
+                    <option value={32}>32 × 32 px (Favicon)</option>
+                    <option value={48}>48 × 48 px (Windows)</option>
+                    <option value={64}>64 × 64 px (HD)</option>
+                    <option value={128}>128 × 128 px (Large)</option>
+                    <option value={256}>256 × 256 px (Ultra)</option>
                   </select>
                 </div>
               )}
@@ -280,17 +280,17 @@ export const ImageConverterTool: React.FC = () => {
               {globalTargetFormat !== 'ico' && (
                 <div>
                   <label className="block text-xs font-bold text-slate-700 mb-1">
-                    Dimension :
+                    {t('tools.imageConverter.dimensions')}
                   </label>
                   <select
                     value={scale}
                     onChange={(e) => setScale(parseFloat(e.target.value))}
                     className="px-3 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-xl font-medium"
                   >
-                    <option value={1.0}>100% (Taille originale)</option>
-                    <option value={0.75}>75% de la taille</option>
-                    <option value={0.50}>50% (Réduire de moitié)</option>
-                    <option value={0.25}>25% (Miniature)</option>
+                    <option value={1.0}>{t('tools.imageConverter.scaleOriginal')}</option>
+                    <option value={0.75}>{t('tools.imageConverter.scale75')}</option>
+                    <option value={0.50}>{t('tools.imageConverter.scale50')}</option>
+                    <option value={0.25}>{t('tools.imageConverter.scale25')}</option>
                   </select>
                 </div>
               )}
@@ -300,8 +300,8 @@ export const ImageConverterTool: React.FC = () => {
           {/* List of Files to Convert */}
           <div className="bg-white rounded-3xl border border-slate-200/80 shadow-xs overflow-hidden">
             <div className="px-6 py-4 bg-slate-50/80 border-b border-slate-100 flex items-center justify-between text-xs font-semibold text-slate-700">
-              <span>{items.length} {items.length > 1 ? 'images sélectionnées' : 'image sélectionnée'}</span>
-              <span>{doneCount} / {items.length} convertie{doneCount > 1 ? 's' : ''}</span>
+              <span>{items.length} {t('tools.imageConverter.imagesSelected')}</span>
+              <span>{doneCount} / {items.length} {t('tools.imageConverter.imagesConverted')}</span>
             </div>
 
             <ul className="divide-y divide-slate-100">
@@ -352,7 +352,7 @@ export const ImageConverterTool: React.FC = () => {
                     >
                       {FORMAT_OPTIONS.map((f) => (
                         <option key={f.id} value={f.id}>
-                          vers {f.label}
+                          → {f.label}
                         </option>
                       ))}
                     </select>
@@ -361,7 +361,7 @@ export const ImageConverterTool: React.FC = () => {
                       <button
                         onClick={() => handleDownloadSingle(item)}
                         className="p-2 text-emerald-600 hover:bg-emerald-50 rounded-xl transition-colors cursor-pointer"
-                        title="Télécharger l'image convertie"
+                        title={t('tools.pdfToImages.downloadPage')}
                       >
                         <Download className="w-4 h-4" />
                       </button>
@@ -371,7 +371,7 @@ export const ImageConverterTool: React.FC = () => {
                       onClick={() => removeItem(item.id)}
                       disabled={isProcessing}
                       className="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-colors cursor-pointer"
-                      title="Supprimer"
+                      title={t('tools.merge.delete')}
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
@@ -384,7 +384,7 @@ export const ImageConverterTool: React.FC = () => {
             <div className="p-4 bg-slate-50/50 border-t border-slate-100 flex justify-center">
               <label className="inline-flex items-center gap-2 px-4 py-2 bg-white hover:bg-slate-100/80 text-slate-700 border border-slate-200 text-xs font-semibold rounded-xl transition-colors cursor-pointer shadow-xs">
                 <Plus className="w-4 h-4 text-indigo-600" />
-                <span>Ajouter d'autres photos ou images</span>
+                <span>{t('tools.imagesToPdf.addMore')}</span>
                 <input
                   type="file"
                   accept="image/*,.heic,.heif,.svg,.bmp,.ico"
@@ -404,10 +404,10 @@ export const ImageConverterTool: React.FC = () => {
             <div className="text-xs sm:text-sm text-slate-600 font-medium">
               {doneCount > 0 ? (
                 <span className="text-emerald-700 font-bold">
-                  {doneCount} image{doneCount > 1 ? 's prêtes' : ' prête'} au téléchargement.
+                  {doneCount} / {items.length} {t('tools.imageConverter.imagesConverted')}.
                 </span>
               ) : (
-                <span>Cliquez sur Convertir pour lancer le traitement local.</span>
+                <span>{t('tools.imageConverter.imagesSelected')}: {items.length}</span>
               )}
             </div>
 
@@ -418,7 +418,7 @@ export const ImageConverterTool: React.FC = () => {
                   className="flex-1 sm:flex-initial px-5 py-3.5 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs rounded-2xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-98"
                 >
                   <Archive className="w-4 h-4" />
-                  <span>Tout télécharger (ZIP)</span>
+                  <span>{t('tools.imageConverter.btnZip')}</span>
                 </button>
               )}
 
@@ -430,12 +430,12 @@ export const ImageConverterTool: React.FC = () => {
                 {isProcessing ? (
                   <>
                     <Loader2 className="w-5 h-5 animate-spin" />
-                    <span>Conversion locale...</span>
+                    <span>{t('tools.imageConverter.processing')}</span>
                   </>
                 ) : (
                   <>
                     <Sparkles className="w-5 h-5" />
-                    <span>Convertir les {items.length} images</span>
+                    <span>{t('tools.imageConverter.btnConvert', { count: items.length })}</span>
                   </>
                 )}
               </button>

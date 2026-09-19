@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Dropzone } from '../ui/Dropzone';
 import type { PdfFileItem } from '../../types';
 import { mergePdfs, downloadPdf, formatBytes } from '../../lib/pdf-service';
@@ -18,6 +19,7 @@ import {
 } from 'lucide-react';
 
 export const MergeTool: React.FC = () => {
+  const { t } = useTranslation();
   const [items, setItems] = useState<PdfFileItem[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
   const [outputFileName, setOutputFileName] = useState('documents_fusionnes.pdf');
@@ -71,7 +73,7 @@ export const MergeTool: React.FC = () => {
 
   const handleMerge = async () => {
     if (items.length < 2) {
-      setErrorMessage('Veuillez ajouter au moins 2 fichiers PDF pour effectuer une fusion.');
+      setErrorMessage(t('tools.merge.errorMin'));
       return;
     }
 
@@ -88,10 +90,10 @@ export const MergeTool: React.FC = () => {
 
       downloadPdf(mergedBytes, fileNameToDownload);
       fireSuccessConfetti();
-      setSuccessMessage(`Les ${items.length} documents ont été assemblés et téléchargés avec succès !`);
+      setSuccessMessage(t('tools.merge.success', { count: items.length }));
     } catch (err) {
       console.error(err);
-      setErrorMessage("Une erreur est survenue lors de la fusion du document. L'un des fichiers est peut-être protégé ou endommagé.");
+      setErrorMessage("Error merging documents / Erreur lors de la fusion.");
     } finally {
       setIsProcessing(false);
     }
@@ -105,9 +107,9 @@ export const MergeTool: React.FC = () => {
       {/* Header Info */}
       <div className="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-xl font-bold text-slate-900 tracking-tight">Fusionner des PDF</h2>
+          <h2 className="text-xl font-bold text-slate-900 tracking-tight">{t('tools.merge.headerTitle')}</h2>
           <p className="text-sm text-slate-500 mt-0.5">
-            Combinez plusieurs fichiers en un seul document. Vous pouvez ajuster l'ordre avant la fusion.
+            {t('tools.merge.headerDesc')}
           </p>
         </div>
 
@@ -117,7 +119,7 @@ export const MergeTool: React.FC = () => {
               onClick={clearAll}
               className="text-xs font-semibold text-rose-600 hover:text-rose-700 hover:bg-rose-50 px-3 py-2 rounded-xl transition-colors cursor-pointer"
             >
-              Tout effacer
+              {t('tools.merge.clearAll')}
             </button>
           </div>
         )}
@@ -143,8 +145,6 @@ export const MergeTool: React.FC = () => {
         <Dropzone
           onFilesSelected={handleFilesAdded}
           multiple={true}
-          title="Sélectionnez ou déposez vos fichiers PDF"
-          description="Vous pourrez ensuite réordonner les pages comme bon vous semble"
         />
       ) : (
         <div className="space-y-4">
@@ -153,13 +153,13 @@ export const MergeTool: React.FC = () => {
             <div className="px-6 py-4 bg-slate-50/80 border-b border-slate-100 flex items-center justify-between">
               <div className="flex items-center gap-2 text-xs font-semibold text-slate-700">
                 <Layers className="w-4 h-4 text-indigo-600" />
-                <span>{items.length} {items.length > 1 ? 'documents sélectionnés' : 'document sélectionné'}</span>
+                <span>{items.length} {items.length > 1 ? t('tools.merge.docsSelected') : t('tools.merge.docSelected')}</span>
                 <span className="text-slate-400">•</span>
                 <span className="text-slate-500">{formatBytes(totalSize)}</span>
                 {totalPages > 0 && (
                   <>
                     <span className="text-slate-400">•</span>
-                    <span className="text-slate-500">{totalPages} pages au total</span>
+                    <span className="text-slate-500">{totalPages} {t('tools.merge.pages')} {t('tools.merge.total')}</span>
                   </>
                 )}
               </div>
@@ -184,7 +184,7 @@ export const MergeTool: React.FC = () => {
                       </p>
                       <p className="text-xs text-slate-400 mt-0.5">
                         {formatBytes(item.size)}
-                        {item.pageCount !== undefined && ` • ${item.pageCount} page${item.pageCount > 1 ? 's' : ''}`}
+                        {item.pageCount !== undefined && ` • ${item.pageCount} ${item.pageCount > 1 ? t('tools.merge.pages') : t('tools.merge.page')}`}
                       </p>
                     </div>
                   </div>
@@ -194,7 +194,7 @@ export const MergeTool: React.FC = () => {
                     <button
                       onClick={() => moveItem(index, 'up')}
                       disabled={index === 0}
-                      title="Monter"
+                      title={t('tools.merge.moveUp')}
                       className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 disabled:opacity-20 disabled:hover:bg-transparent cursor-pointer"
                     >
                       <ArrowUp className="w-4 h-4" />
@@ -202,14 +202,14 @@ export const MergeTool: React.FC = () => {
                     <button
                       onClick={() => moveItem(index, 'down')}
                       disabled={index === items.length - 1}
-                      title="Descendre"
+                      title={t('tools.merge.moveDown')}
                       className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 disabled:opacity-20 disabled:hover:bg-transparent cursor-pointer"
                     >
                       <ArrowDown className="w-4 h-4" />
                     </button>
                     <button
                       onClick={() => removeItem(item.id)}
-                      title="Supprimer de la liste"
+                      title={t('tools.merge.delete')}
                       className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
                     >
                       <Trash2 className="w-4 h-4" />
@@ -223,7 +223,7 @@ export const MergeTool: React.FC = () => {
             <div className="p-4 bg-slate-50/50 border-t border-slate-100 flex justify-center">
               <label className="inline-flex items-center gap-2 px-4 py-2 bg-white hover:bg-slate-100/80 text-slate-700 border border-slate-200 text-xs font-semibold rounded-xl transition-colors cursor-pointer shadow-xs">
                 <Plus className="w-4 h-4 text-indigo-600" />
-                <span>Ajouter d'autres fichiers PDF</span>
+                <span>{t('tools.merge.addMore')}</span>
                 <input
                   type="file"
                   accept=".pdf"
@@ -242,13 +242,13 @@ export const MergeTool: React.FC = () => {
           <div className="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="w-full sm:w-auto flex-1 max-w-sm">
               <label className="block text-xs font-medium text-slate-500 mb-1">
-                Nom du fichier de sortie :
+                {t('tools.merge.outputName')}
               </label>
               <input
                 type="text"
                 value={outputFileName}
                 onChange={(e) => setOutputFileName(e.target.value)}
-                placeholder="documents_fusionnes.pdf"
+                placeholder={t('tools.merge.outputPlaceholder')}
                 className="w-full px-3.5 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-colors"
               />
             </div>
@@ -261,12 +261,12 @@ export const MergeTool: React.FC = () => {
               {isProcessing ? (
                 <>
                   <Loader2 className="w-5 h-5 animate-spin" />
-                  <span>Fusion en cours...</span>
+                  <span>{t('tools.merge.processing')}</span>
                 </>
               ) : (
                 <>
                   <Download className="w-5 h-5" />
-                  <span>Fusionner les {items.length} PDF</span>
+                  <span>{t('tools.merge.btnMerge', { count: items.length })}</span>
                 </>
               )}
             </button>

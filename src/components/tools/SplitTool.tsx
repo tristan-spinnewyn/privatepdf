@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Dropzone } from '../ui/Dropzone';
 import { renderPageThumbnail, getPdfPageCount } from '../../lib/pdf-renderer';
 import { splitPdf, downloadPdf, formatBytes } from '../../lib/pdf-service';
@@ -19,6 +20,7 @@ interface PagePreview {
 }
 
 export const SplitTool: React.FC = () => {
+  const { t } = useTranslation();
   const [file, setFile] = useState<File | null>(null);
   const [pages, setPages] = useState<PagePreview[]>([]);
   const [selectedPages, setSelectedPages] = useState<Set<number>>(new Set());
@@ -52,14 +54,13 @@ export const SplitTool: React.FC = () => {
       }
 
       setPages(items);
-      // Select first page by default
       if (items.length > 0) {
         setSelectedPages(new Set([1]));
         setRangeInput('1');
       }
     } catch (err) {
       console.error(err);
-      setErrorMessage("Impossible de lire les pages du document PDF.");
+      setErrorMessage("Error reading PDF pages / Erreur de lecture.");
     } finally {
       setIsLoading(false);
     }
@@ -107,7 +108,6 @@ export const SplitTool: React.FC = () => {
       return;
     }
 
-    // Convert to ranges like "1-3, 5, 8-10"
     const ranges: string[] = [];
     let start = sorted[0];
     let prev = sorted[0];
@@ -127,7 +127,6 @@ export const SplitTool: React.FC = () => {
 
   const handleRangeInputChange = (value: string) => {
     setRangeInput(value);
-    // Parse range e.g. "1-3, 5, 7"
     const parts = value.split(',');
     const newSelected = new Set<number>();
     const total = pages.length;
@@ -161,7 +160,7 @@ export const SplitTool: React.FC = () => {
   const handleExtract = async () => {
     if (!file) return;
     if (selectedPages.size === 0) {
-      setErrorMessage('Veuillez sélectionner au moins une page à extraire.');
+      setErrorMessage(t('tools.split.errorMin'));
       return;
     }
 
@@ -176,10 +175,10 @@ export const SplitTool: React.FC = () => {
       downloadPdf(splitBytes, `${baseName}_extrait_${sortedPages.length}pages.pdf`);
 
       fireSuccessConfetti();
-      setSuccessMessage(`${sortedPages.length} page${sortedPages.length > 1 ? 's ont été extraites' : ' a été extraite'} et téléchargée !`);
+      setSuccessMessage(t('tools.split.success', { count: sortedPages.length }));
     } catch (err) {
       console.error(err);
-      setErrorMessage("Une erreur est survenue lors de l'extraction des pages.");
+      setErrorMessage("Error extracting pages / Erreur lors de l'extraction.");
     } finally {
       setIsProcessing(false);
     }
@@ -190,9 +189,9 @@ export const SplitTool: React.FC = () => {
       {/* Header */}
       <div className="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-xl font-bold text-slate-900 tracking-tight">Découper & Extraire des pages</h2>
+          <h2 className="text-xl font-bold text-slate-900 tracking-tight">{t('tools.split.headerTitle')}</h2>
           <p className="text-sm text-slate-500 mt-0.5">
-            Isolez une ou plusieurs pages spécifiques d'un gros document pour créer un nouveau PDF ciblé.
+            {t('tools.split.headerDesc')}
           </p>
         </div>
 
@@ -204,7 +203,7 @@ export const SplitTool: React.FC = () => {
             }}
             className="text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100 px-3 py-2 rounded-xl transition-colors cursor-pointer self-start sm:self-auto"
           >
-            Changer de fichier
+            {t('tools.organize.changeFile')}
           </button>
         )}
       </div>
@@ -229,8 +228,6 @@ export const SplitTool: React.FC = () => {
         <Dropzone
           onFilesSelected={handleFileSelected}
           multiple={false}
-          title="Sélectionnez le fichier PDF à découper"
-          description="Cliquez sur les pages à extraire ou indiquez simplement les numéros de pages"
         />
       ) : (
         <div className="space-y-5">
@@ -246,7 +243,7 @@ export const SplitTool: React.FC = () => {
                     {file.name}
                   </p>
                   <p className="text-xs text-slate-400">
-                    {formatBytes(file.size)} • {selectedPages.size} / {pages.length} pages sélectionnées
+                    {formatBytes(file.size)} • {t('tools.split.pagesSelected', { count: selectedPages.size, total: pages.length })}
                   </p>
                 </div>
               </div>
@@ -257,26 +254,26 @@ export const SplitTool: React.FC = () => {
                   onClick={selectAll}
                   className="px-2.5 py-1.5 text-xs font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
                 >
-                  Tout cocher
+                  {t('tools.split.selectAll')}
                 </button>
                 <button
                   onClick={selectNone}
                   className="px-2.5 py-1.5 text-xs font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
                 >
-                  Tout décocher
+                  {t('tools.split.deselectAll')}
                 </button>
                 <span className="text-slate-300">|</span>
                 <button
                   onClick={selectOdd}
                   className="px-2.5 py-1.5 text-xs font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
                 >
-                  Impaires
+                  {t('tools.split.odd')}
                 </button>
                 <button
                   onClick={selectEven}
                   className="px-2.5 py-1.5 text-xs font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
                 >
-                  Paires
+                  {t('tools.split.even')}
                 </button>
               </div>
             </div>
@@ -285,17 +282,17 @@ export const SplitTool: React.FC = () => {
             <div className="pt-3 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center gap-3">
               <label className="text-xs font-bold text-slate-600 whitespace-nowrap flex items-center gap-1.5">
                 <Scissors className="w-3.5 h-3.5 text-purple-600" />
-                <span>Intervalles de pages :</span>
+                <span>{t('tools.split.rangeLabel')}</span>
               </label>
               <input
                 type="text"
                 value={rangeInput}
                 onChange={(e) => handleRangeInputChange(e.target.value)}
-                placeholder="Exemple : 1-3, 5, 8-10"
+                placeholder={t('tools.split.rangePlaceholder')}
                 className="flex-1 px-3.5 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-colors"
               />
               <span className="text-[11px] text-slate-400">
-                (Astuce: cliquez directement sur les miniatures ci-dessous)
+                {t('tools.split.rangeTip')}
               </span>
             </div>
           </div>
@@ -304,7 +301,7 @@ export const SplitTool: React.FC = () => {
           {isLoading ? (
             <div className="bg-white p-12 rounded-3xl border border-slate-200/80 shadow-xs flex flex-col items-center justify-center text-center">
               <Loader2 className="w-10 h-10 text-purple-600 animate-spin mb-3" />
-              <p className="text-base font-bold text-slate-800">Chargement des pages...</p>
+              <p className="text-base font-bold text-slate-800">{t('tools.split.loading')}</p>
             </div>
           ) : (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
@@ -326,7 +323,7 @@ export const SplitTool: React.FC = () => {
                       isSelected ? 'bg-purple-50/80 border-purple-100' : 'bg-slate-50/80 border-slate-100'
                     }`}>
                       <span className={`font-bold ${isSelected ? 'text-purple-900' : 'text-slate-600'}`}>
-                        Page {page.pageNumber}
+                        {t('tools.organize.page')} {page.pageNumber}
                       </span>
                       <div className={`w-5 h-5 rounded-md flex items-center justify-center transition-colors ${
                         isSelected ? 'bg-purple-600 text-white' : 'border border-slate-300 bg-white'
@@ -339,7 +336,7 @@ export const SplitTool: React.FC = () => {
                     <div className="aspect-3/4 p-3 flex items-center justify-center bg-slate-100/40">
                       <img
                         src={page.thumbnailUrl}
-                        alt={`Page ${page.pageNumber}`}
+                        alt={`${t('tools.organize.page')} ${page.pageNumber}`}
                         className="max-h-full max-w-full object-contain shadow-xs rounded-sm"
                       />
                     </div>
@@ -353,7 +350,7 @@ export const SplitTool: React.FC = () => {
           {!isLoading && (
             <div className="sticky bottom-6 bg-white/95 backdrop-blur-md p-4 sm:p-5 rounded-3xl border border-slate-200/90 shadow-xl flex items-center justify-between gap-4 z-20">
               <div className="text-xs sm:text-sm text-slate-600 font-medium">
-                <span className="font-bold text-purple-700 text-base">{selectedPages.size}</span> page{selectedPages.size > 1 ? 's sélectionnées' : ' sélectionnée'} sur {pages.length}.
+                {t('tools.split.summary', { count: selectedPages.size, total: pages.length })}
               </div>
 
               <button
@@ -364,12 +361,12 @@ export const SplitTool: React.FC = () => {
                 {isProcessing ? (
                   <>
                     <Loader2 className="w-5 h-5 animate-spin" />
-                    <span>Extraction en cours...</span>
+                    <span>{t('tools.split.processing')}</span>
                   </>
                 ) : (
                   <>
                     <Download className="w-5 h-5" />
-                    <span>Extraire les {selectedPages.size} pages</span>
+                    <span>{t('tools.split.btnExtract', { count: selectedPages.size })}</span>
                   </>
                 )}
               </button>

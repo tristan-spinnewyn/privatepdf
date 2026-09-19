@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Dropzone } from '../ui/Dropzone';
 import { getPdfPageCount, renderPageToCanvas } from '../../lib/pdf-renderer';
 import { signAndDatePdf, downloadPdf } from '../../lib/pdf-service';
@@ -18,13 +19,14 @@ import {
 } from 'lucide-react';
 
 export const SignTool: React.FC = () => {
+  const { t, i18n } = useTranslation();
   const [file, setFile] = useState<File | null>(null);
   const [totalPages, setTotalPages] = useState<number>(0);
   const [currentPage, setCurrentPage] = useState<number>(1);
 
   // Signature creation mode: 'draw' | 'upload'
   const [mode, setMode] = useState<'draw' | 'upload'>('draw');
-  const [penColor, setPenColor] = useState('#1e3a8a'); // default navy blue
+  const [penColor, setPenColor] = useState('#1e3a8a');
   const [penWidth, setPenWidth] = useState(3);
   const [signatureDataUrl, setSignatureDataUrl] = useState<string | null>(null);
 
@@ -32,8 +34,14 @@ export const SignTool: React.FC = () => {
   const [includeDate, setIncludeDate] = useState(true);
   const [dateText, setDateText] = useState(() => {
     const today = new Date();
-    return today.toLocaleDateString('fr-FR');
+    return today.toLocaleDateString(i18n.language.startsWith('en') ? 'en-US' : 'fr-FR');
   });
+
+  // Update date format on language change
+  useEffect(() => {
+    const today = new Date();
+    setDateText(today.toLocaleDateString(i18n.language.startsWith('en') ? 'en-US' : 'fr-FR'));
+  }, [i18n.language]);
 
   // Interactive placement relative to document preview (in %)
   const [sigPlacement, setSigPlacement] = useState({
@@ -65,7 +73,6 @@ export const SignTool: React.FC = () => {
   const isDrawingRef = useRef<boolean>(false);
   const lastPointRef = useRef<{ x: number; y: number } | null>(null);
 
-  // Load PDF file
   const handleFileSelected = async (files: File[]) => {
     if (!files || files.length === 0) return;
     const selected = files[0];
@@ -79,11 +86,10 @@ export const SignTool: React.FC = () => {
       setTotalPages(count);
     } catch (err) {
       console.error(err);
-      setErrorMessage("Impossible d'ouvrir ce fichier PDF.");
+      setErrorMessage("Cannot open PDF / Impossible d'ouvrir ce fichier PDF.");
     }
   };
 
-  // Render current page in preview canvas
   useEffect(() => {
     if (!file || !previewCanvasRef.current) return;
 
@@ -94,7 +100,7 @@ export const SignTool: React.FC = () => {
       .catch((err: unknown) => {
         if (isMounted) {
           console.error(err);
-          setErrorMessage('Erreur lors du rendu de la page.');
+          setErrorMessage('Rendering error / Erreur de rendu.');
         }
       })
       .finally(() => {
@@ -106,7 +112,6 @@ export const SignTool: React.FC = () => {
     };
   }, [file, currentPage]);
 
-  // Drawing Pad setup & events
   const startDrawing = (e: React.PointerEvent<HTMLCanvasElement>) => {
     const canvas = signatureCanvasRef.current;
     if (!canvas) return;
@@ -180,7 +185,6 @@ export const SignTool: React.FC = () => {
     reader.readAsDataURL(uploadedFile);
   };
 
-  // Dragging signature and date on document preview
   const handleDragStart = (target: 'sig' | 'date', e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -233,7 +237,7 @@ export const SignTool: React.FC = () => {
   const handleApplySignature = async () => {
     if (!file) return;
     if (!signatureDataUrl) {
-      setErrorMessage('Veuillez d’abord dessiner ou importer une signature.');
+      setErrorMessage(t('tools.sign.drawPlaceholder'));
       return;
     }
 
@@ -260,10 +264,10 @@ export const SignTool: React.FC = () => {
       downloadPdf(signedBytes, `${baseName}_signe.pdf`);
 
       fireSuccessConfetti();
-      setSuccessMessage('Votre document a été signé et téléchargé avec succès !');
+      setSuccessMessage(t('tools.sign.success'));
     } catch (err) {
       console.error(err);
-      setErrorMessage("Une erreur est survenue lors de l'application de la signature.");
+      setErrorMessage("Error signing document / Erreur d'application.");
     } finally {
       setIsProcessing(false);
     }
@@ -274,9 +278,9 @@ export const SignTool: React.FC = () => {
       {/* Header */}
       <div className="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-xl font-bold text-slate-900 tracking-tight">Signer & Dater un document</h2>
+          <h2 className="text-xl font-bold text-slate-900 tracking-tight">{t('tools.sign.headerTitle')}</h2>
           <p className="text-sm text-slate-500 mt-0.5">
-            Apposez votre signature manuscrite et la date du jour à l'emplacement exact souhaité.
+            {t('tools.sign.headerDesc')}
           </p>
         </div>
 
@@ -288,7 +292,7 @@ export const SignTool: React.FC = () => {
             }}
             className="text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100 px-3 py-2 rounded-xl transition-colors cursor-pointer self-start sm:self-auto"
           >
-            Changer de fichier
+            {t('tools.organize.changeFile')}
           </button>
         )}
       </div>
@@ -313,8 +317,6 @@ export const SignTool: React.FC = () => {
         <Dropzone
           onFilesSelected={handleFileSelected}
           multiple={false}
-          title="Sélectionnez le document PDF à signer"
-          description="Vous pourrez dessiner votre signature et la déplacer précisément sur la page"
         />
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
@@ -323,7 +325,7 @@ export const SignTool: React.FC = () => {
             {/* Page navigation bar */}
             <div className="bg-white p-4 rounded-3xl border border-slate-200/80 shadow-xs flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <span className="text-xs font-bold text-slate-700">Page à signer :</span>
+                <span className="text-xs font-bold text-slate-700">{t('tools.sign.pageToSign')}</span>
                 <span className="px-2.5 py-1 bg-slate-100 font-extrabold text-xs text-slate-800 rounded-lg">
                   {currentPage} / {totalPages}
                 </span>
@@ -334,7 +336,7 @@ export const SignTool: React.FC = () => {
                   onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                   disabled={currentPage <= 1}
                   className="p-1.5 rounded-lg border border-slate-200 hover:bg-slate-100 disabled:opacity-30 cursor-pointer"
-                  title="Page précédente"
+                  title={t('tools.sign.prev')}
                 >
                   <ChevronLeft className="w-4 h-4" />
                 </button>
@@ -342,7 +344,7 @@ export const SignTool: React.FC = () => {
                   onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
                   disabled={currentPage >= totalPages}
                   className="p-1.5 rounded-lg border border-slate-200 hover:bg-slate-100 disabled:opacity-30 cursor-pointer"
-                  title="Page suivante"
+                  title={t('tools.sign.next')}
                 >
                   <ChevronRight className="w-4 h-4" />
                 </button>
@@ -354,7 +356,7 @@ export const SignTool: React.FC = () => {
               <div className="flex items-center justify-between border-b border-slate-100 pb-3">
                 <div className="flex items-center gap-2 font-bold text-slate-800 text-sm">
                   <PenTool className="w-4 h-4 text-emerald-600" />
-                  <span>Votre Signature</span>
+                  <span>{t('tools.sign.signatureTitle')}</span>
                 </div>
 
                 <div className="flex items-center p-1 bg-slate-100 rounded-xl text-xs">
@@ -364,7 +366,7 @@ export const SignTool: React.FC = () => {
                       mode === 'draw' ? 'bg-white shadow-xs text-slate-900 font-bold' : 'text-slate-500'
                     }`}
                   >
-                    Tracer
+                    {t('tools.sign.tabDraw')}
                   </button>
                   <button
                     onClick={() => setMode('upload')}
@@ -372,22 +374,21 @@ export const SignTool: React.FC = () => {
                       mode === 'upload' ? 'bg-white shadow-xs text-slate-900 font-bold' : 'text-slate-500'
                     }`}
                   >
-                    Importer
+                    {t('tools.sign.tabUpload')}
                   </button>
                 </div>
               </div>
 
               {mode === 'draw' ? (
                 <div className="space-y-3">
-                  {/* Drawing tools: color and stroke width */}
                   <div className="flex items-center justify-between">
                     {/* Colors */}
                     <div className="flex items-center gap-1.5">
-                      <span className="text-xs text-slate-400 mr-1">Couleur :</span>
+                      <span className="text-xs text-slate-400 mr-1">{t('tools.sign.color')}</span>
                       {[
-                        { color: '#000000', label: 'Noir' },
-                        { color: '#1e3a8a', label: 'Bleu marine' },
-                        { color: '#2563eb', label: 'Bleu roi' },
+                        { color: '#000000', label: 'Noir / Black' },
+                        { color: '#1e3a8a', label: 'Bleu marine / Navy' },
+                        { color: '#2563eb', label: 'Bleu roi / Blue' },
                       ].map((c) => (
                         <button
                           key={c.color}
@@ -404,20 +405,20 @@ export const SignTool: React.FC = () => {
                     {/* Pen thickness */}
                     <div className="flex items-center gap-1 bg-slate-100 p-0.5 rounded-lg text-[11px]">
                       {[
-                        { width: 2, label: 'Fin' },
-                        { width: 3.5, label: 'Moyen' },
-                        { width: 5, label: 'Épais' },
-                      ].map((t) => (
+                        { width: 2, label: t('tools.sign.thin') },
+                        { width: 3.5, label: t('tools.sign.medium') },
+                        { width: 5, label: t('tools.sign.thick') },
+                      ].map((tItem) => (
                         <button
-                          key={t.width}
-                          onClick={() => setPenWidth(t.width)}
+                          key={tItem.width}
+                          onClick={() => setPenWidth(tItem.width)}
                           className={`px-2 py-0.5 rounded-md font-medium cursor-pointer transition-colors ${
-                            penWidth === t.width
+                            penWidth === tItem.width
                               ? 'bg-white shadow-xs text-slate-900 font-bold'
                               : 'text-slate-500 hover:text-slate-800'
                           }`}
                         >
-                          {t.label}
+                          {tItem.label}
                         </button>
                       ))}
                     </div>
@@ -428,7 +429,7 @@ export const SignTool: React.FC = () => {
                       className="inline-flex items-center gap-1 text-xs font-semibold text-slate-500 hover:text-rose-600 transition-colors cursor-pointer"
                     >
                       <Eraser className="w-3.5 h-3.5" />
-                      <span>Effacer</span>
+                      <span>{t('tools.sign.clear')}</span>
                     </button>
                   </div>
 
@@ -446,7 +447,7 @@ export const SignTool: React.FC = () => {
                     />
                     {!signatureDataUrl && (
                       <div className="absolute inset-0 pointer-events-none flex items-center justify-center text-slate-400 text-xs font-medium">
-                        Signez ici à la souris ou au doigt
+                        {t('tools.sign.drawPlaceholder')}
                       </div>
                     )}
                   </div>
@@ -466,7 +467,7 @@ export const SignTool: React.FC = () => {
                   >
                     <Upload className="w-8 h-8 text-emerald-600" />
                     <span className="text-xs font-semibold text-slate-700">
-                      Choisir une image de signature (PNG transparent recommandé)
+                      {t('tools.sign.uploadPlaceholder')}
                     </span>
                   </label>
                 </div>
@@ -485,7 +486,7 @@ export const SignTool: React.FC = () => {
                   />
                   <span className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
                     <Calendar className="w-4 h-4 text-emerald-600" />
-                    <span>Ajouter la date du jour</span>
+                    <span>{t('tools.sign.addDate')}</span>
                   </span>
                 </label>
               </div>
@@ -496,11 +497,11 @@ export const SignTool: React.FC = () => {
                     type="text"
                     value={dateText}
                     onChange={(e) => setDateText(e.target.value)}
-                    placeholder="ex: 19/09/2026"
+                    placeholder="19/09/2026"
                     className="w-full px-3.5 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
                   />
                   <p className="text-[11px] text-slate-400 mt-1">
-                    Déplacez la date à côté de la signature sur l'aperçu à droite.
+                    {t('tools.sign.dateHelp')}
                   </p>
                 </div>
               )}
@@ -509,7 +510,7 @@ export const SignTool: React.FC = () => {
             {/* Size control for signature */}
             {signatureDataUrl && (
               <div className="bg-white p-4 rounded-3xl border border-slate-200/80 shadow-xs flex items-center justify-between gap-4">
-                <span className="text-xs font-bold text-slate-700">Taille de signature :</span>
+                <span className="text-xs font-bold text-slate-700">{t('tools.sign.sigSize')}</span>
                 <input
                   type="range"
                   min="15"
@@ -538,12 +539,12 @@ export const SignTool: React.FC = () => {
               {isProcessing ? (
                 <>
                   <Loader2 className="w-5 h-5 animate-spin" />
-                  <span>Application de la signature...</span>
+                  <span>{t('tools.sign.processing')}</span>
                 </>
               ) : (
                 <>
                   <Download className="w-5 h-5" />
-                  <span>Appliquer et Télécharger le PDF signé</span>
+                  <span>{t('tools.sign.btnSign')}</span>
                 </>
               )}
             </button>
@@ -554,9 +555,9 @@ export const SignTool: React.FC = () => {
             <div className="w-full flex items-center justify-between mb-3 text-xs text-slate-500">
               <div className="flex items-center gap-1.5 font-medium">
                 <Move className="w-3.5 h-3.5 text-emerald-600" />
-                <span>Faites glisser la signature et la date à l'endroit désiré</span>
+                <span>{t('tools.sign.dragHelp')}</span>
               </div>
-              <span>Page {currentPage}</span>
+              <span>{t('tools.organize.page')} {currentPage}</span>
             </div>
 
             {/* Container for PDF Canvas + Interactive Draggable Overlays */}

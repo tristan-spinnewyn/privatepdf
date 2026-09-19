@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Navbar } from './components/layout/Navbar';
 import { ToolNavigation } from './components/layout/ToolNavigation';
 import { MergeTool } from './components/tools/MergeTool';
@@ -12,6 +13,7 @@ import type { ToolType } from './types';
 import { ShieldCheck, Zap, Lock, HardDriveDownload } from 'lucide-react';
 
 export function App() {
+  const { t } = useTranslation();
   const [activeTool, setActiveTool] = useState<ToolType>('merge');
 
   const renderActiveTool = () => {
@@ -46,18 +48,18 @@ export function App() {
         <div className="text-center space-y-3 max-w-2xl mx-auto">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-50 border border-emerald-200/80 text-emerald-800 text-xs font-semibold shadow-xs">
             <ShieldCheck className="w-4 h-4 text-emerald-600" />
-            <span>Aucun transfert de données : 100% exécuté sur votre machine</span>
+            <span>{t('hero.badge')}</span>
           </div>
 
           <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
-            Toutes vos manipulations PDF, <br className="hidden sm:inline" />
+            {t('hero.titleLine1')} <br className="hidden sm:inline" />
             <span className="bg-gradient-to-r from-rose-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent">
-              en toute confidentialité
+              {t('hero.titleGradient')}
             </span>
           </h1>
 
           <p className="text-sm sm:text-base text-slate-600">
-            Fusionnez, organisez, découpez, signez et convertissez vos documents sans risquer de divulguer vos données personnelles à des serveurs tiers.
+            {t('hero.description')}
           </p>
         </div>
 
@@ -75,9 +77,9 @@ export function App() {
             <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center border border-emerald-100">
               <Lock className="w-5 h-5" />
             </div>
-            <h3 className="font-bold text-slate-900 text-base">Sécurité & Vie Privée Totale</h3>
+            <h3 className="font-bold text-slate-900 text-base">{t('guarantees.privacyTitle')}</h3>
             <p className="text-xs text-slate-500 leading-relaxed">
-              Vos fiches de paie, pièces d'identité et contrats restent chez vous. Aucun octet n'est téléversé sur un cloud externe.
+              {t('guarantees.privacyDesc')}
             </p>
           </div>
 
@@ -85,9 +87,9 @@ export function App() {
             <div className="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center border border-indigo-100">
               <Zap className="w-5 h-5" />
             </div>
-            <h3 className="font-bold text-slate-900 text-base">Vitesse Instantanée</h3>
+            <h3 className="font-bold text-slate-900 text-base">{t('guarantees.speedTitle')}</h3>
             <p className="text-xs text-slate-500 leading-relaxed">
-              Pas de temps d'attente d'upload ou de download vers un serveur. Le traitement exploite directement la puissance de votre processeur.
+              {t('guarantees.speedDesc')}
             </p>
           </div>
 
@@ -95,9 +97,9 @@ export function App() {
             <div className="w-10 h-10 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center border border-purple-100">
               <HardDriveDownload className="w-5 h-5" />
             </div>
-            <h3 className="font-bold text-slate-900 text-base">Gratuit & Sans Limites</h3>
+            <h3 className="font-bold text-slate-900 text-base">{t('guarantees.freeTitle')}</h3>
             <p className="text-xs text-slate-500 leading-relaxed">
-              Aucune restriction arbitraire sur le nombre de pages ou la taille des fichiers. Pas d'inscription ni d'abonnement requis.
+              {t('guarantees.freeDesc')}
             </p>
           </div>
         </div>
@@ -105,7 +107,7 @@ export function App() {
 
       {/* Footer */}
       <footer className="mt-16 py-6 border-t border-slate-200/80 bg-white/60 text-center text-xs text-slate-400">
-        <p>© 2026 PDF Privé — Outil 100% Client-Side. Vos documents restent strictement sur votre ordinateur.</p>
+        <p>{t('footer.rights')}</p>
       </footer>
     </div>
   );

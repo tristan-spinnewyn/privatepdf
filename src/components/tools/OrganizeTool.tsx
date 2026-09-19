@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Dropzone } from '../ui/Dropzone';
 import { renderPageThumbnail, getPdfPageCount } from '../../lib/pdf-renderer';
 import { organizePdf, downloadPdf, formatBytes } from '../../lib/pdf-service';
@@ -28,6 +29,7 @@ interface PageItem {
 }
 
 export const OrganizeTool: React.FC = () => {
+  const { t } = useTranslation();
   const [file, setFile] = useState<File | null>(null);
   const [pages, setPages] = useState<PageItem[]>([]);
   const [isLoadingThumbnails, setIsLoadingThumbnails] = useState(false);
@@ -48,7 +50,6 @@ export const OrganizeTool: React.FC = () => {
       const pageCount = await getPdfPageCount(selectedFile);
       const items: PageItem[] = [];
 
-      // Generate thumbnails progressively
       for (let i = 1; i <= pageCount; i++) {
         const thumb = await renderPageThumbnail(selectedFile, i, 280);
         items.push({
@@ -65,7 +66,7 @@ export const OrganizeTool: React.FC = () => {
       setPages(items);
     } catch (err) {
       console.error(err);
-      setErrorMessage("Impossible de lire les pages du document PDF. Le fichier est peut-être corrompu ou protégé par mot de passe.");
+      setErrorMessage("Error reading PDF pages / Erreur de lecture.");
     } finally {
       setIsLoadingThumbnails(false);
     }
@@ -116,7 +117,7 @@ export const OrganizeTool: React.FC = () => {
 
     const remainingPages = pages.filter((p) => !p.isDeleted);
     if (remainingPages.length === 0) {
-      setErrorMessage('Toutes les pages ont été supprimées. Conservez au moins une page.');
+      setErrorMessage(t('tools.organize.emptyError', 'Toutes les pages ont été supprimées / All pages deleted.'));
       return;
     }
 
@@ -143,10 +144,10 @@ export const OrganizeTool: React.FC = () => {
       downloadPdf(organizedBytes, `${baseName}_organise.pdf`);
 
       fireSuccessConfetti();
-      setSuccessMessage('Votre document réorganisé a été généré et téléchargé !');
+      setSuccessMessage(t('tools.organize.success'));
     } catch (err) {
       console.error(err);
-      setErrorMessage("Une erreur est survenue lors de l'organisation du document.");
+      setErrorMessage("Error organizing PDF / Erreur d'organisation.");
     } finally {
       setIsProcessing(false);
     }
@@ -159,9 +160,9 @@ export const OrganizeTool: React.FC = () => {
       {/* Header */}
       <div className="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-xl font-bold text-slate-900 tracking-tight">Organiser & Faire pivoter</h2>
+          <h2 className="text-xl font-bold text-slate-900 tracking-tight">{t('tools.organize.headerTitle')}</h2>
           <p className="text-sm text-slate-500 mt-0.5">
-            Tournez les pages scannées à l'envers, supprimez les pages inutiles et réorganisez l'ordre des pages.
+            {t('tools.organize.headerDesc')}
           </p>
         </div>
 
@@ -174,15 +175,15 @@ export const OrganizeTool: React.FC = () => {
               }}
               className="text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100 px-3 py-2 rounded-xl transition-colors cursor-pointer"
             >
-              Changer de fichier
+              {t('tools.organize.changeFile')}
             </button>
             <button
               onClick={resetAll}
-              title="Rétablir l'état initial"
+              title={t('tools.organize.reset')}
               className="text-xs font-semibold text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50 px-3 py-2 rounded-xl transition-colors cursor-pointer flex items-center gap-1.5"
             >
               <Undo2 className="w-3.5 h-3.5" />
-              <span>Réinitialiser</span>
+              <span>{t('tools.organize.reset')}</span>
             </button>
           </div>
         )}
@@ -208,8 +209,6 @@ export const OrganizeTool: React.FC = () => {
         <Dropzone
           onFilesSelected={handleFileSelected}
           multiple={false}
-          title="Sélectionnez le fichier PDF à organiser"
-          description="Visualisez les miniatures, redressez les scans et supprimez les pages en 1 clic"
         />
       ) : (
         <div className="space-y-5">
@@ -224,7 +223,7 @@ export const OrganizeTool: React.FC = () => {
                   {file.name}
                 </p>
                 <p className="text-xs text-slate-400">
-                  {formatBytes(file.size)} • {remainingCount} / {pages.length} pages conservées
+                  {formatBytes(file.size)} • {t('tools.organize.pagesKept', { remaining: remainingCount, total: pages.length })}
                 </p>
               </div>
             </div>
@@ -234,18 +233,16 @@ export const OrganizeTool: React.FC = () => {
               <button
                 onClick={() => rotateAll(-90)}
                 className="px-3 py-1.5 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors flex items-center gap-1.5 cursor-pointer"
-                title="Tourner toutes les pages de 90° vers la gauche"
               >
                 <RotateCcw className="w-3.5 h-3.5 text-slate-500" />
-                <span>Tout -90°</span>
+                <span>{t('tools.organize.rotateAllLeft')}</span>
               </button>
               <button
                 onClick={() => rotateAll(90)}
                 className="px-3 py-1.5 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors flex items-center gap-1.5 cursor-pointer"
-                title="Tourner toutes les pages de 90° vers la droite"
               >
                 <RotateCw className="w-3.5 h-3.5 text-slate-500" />
-                <span>Tout +90°</span>
+                <span>{t('tools.organize.rotateAllRight')}</span>
               </button>
             </div>
           </div>
@@ -254,9 +251,9 @@ export const OrganizeTool: React.FC = () => {
           {isLoadingThumbnails ? (
             <div className="bg-white p-12 rounded-3xl border border-slate-200/80 shadow-xs flex flex-col items-center justify-center text-center">
               <Loader2 className="w-10 h-10 text-amber-500 animate-spin mb-3" />
-              <p className="text-base font-bold text-slate-800">Génération des aperçus des pages...</p>
+              <p className="text-base font-bold text-slate-800">{t('tools.organize.rendering')}</p>
               <p className="text-xs text-slate-400 mt-1">
-                Le rendu s'effectue en direct dans votre navigateur en toute confidentialité
+                {t('tools.organize.renderingHint')}
               </p>
             </div>
           ) : (
@@ -273,10 +270,10 @@ export const OrganizeTool: React.FC = () => {
                   {/* Card Header with Page Index */}
                   <div className="px-3 py-2 bg-slate-50/90 border-b border-slate-100 flex items-center justify-between text-xs">
                     <span className="font-bold text-slate-700">
-                      Page {index + 1}
+                      {t('tools.organize.page')} {index + 1}
                       {page.originalIndex + 1 !== index + 1 && (
                         <span className="text-[10px] text-slate-400 ml-1 font-normal">
-                          (orig. {page.originalIndex + 1})
+                          ({t('tools.organize.orig')} {page.originalIndex + 1})
                         </span>
                       )}
                     </span>
@@ -292,7 +289,7 @@ export const OrganizeTool: React.FC = () => {
                   <div className="relative aspect-3/4 p-3 flex items-center justify-center bg-slate-100/50 overflow-hidden">
                     <img
                       src={page.thumbnailUrl}
-                      alt={`Page ${index + 1}`}
+                      alt={`${t('tools.organize.page')} ${index + 1}`}
                       style={{
                         transform: `rotate(${page.rotation}deg)`,
                         transition: 'transform 0.25s ease-in-out',
@@ -304,13 +301,13 @@ export const OrganizeTool: React.FC = () => {
                     {page.isDeleted && (
                       <div className="absolute inset-0 bg-rose-900/40 backdrop-blur-[1px] flex flex-col items-center justify-center p-2 text-center text-white">
                         <span className="text-xs font-bold bg-rose-600 px-2.5 py-1 rounded-lg shadow-sm">
-                          Page supprimée
+                          {t('tools.organize.pageDeleted')}
                         </span>
                         <button
                           onClick={() => toggleDeletePage(index)}
                           className="mt-2 text-[11px] underline font-medium hover:text-rose-100 cursor-pointer"
                         >
-                          Restaurer
+                          {t('tools.organize.restore')}
                         </button>
                       </div>
                     )}
@@ -321,14 +318,14 @@ export const OrganizeTool: React.FC = () => {
                     <div className="flex items-center gap-0.5">
                       <button
                         onClick={() => rotatePage(index, -90)}
-                        title="Pivoter -90°"
+                        title={t('tools.organize.rotateLeft')}
                         className="p-1.5 text-slate-500 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-colors cursor-pointer"
                       >
                         <RotateCcw className="w-3.5 h-3.5" />
                       </button>
                       <button
                         onClick={() => rotatePage(index, 90)}
-                        title="Pivoter +90°"
+                        title={t('tools.organize.rotateRight')}
                         className="p-1.5 text-slate-500 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-colors cursor-pointer"
                       >
                         <RotateCw className="w-3.5 h-3.5" />
@@ -339,7 +336,7 @@ export const OrganizeTool: React.FC = () => {
                       <button
                         onClick={() => movePage(index, 'left')}
                         disabled={index === 0}
-                        title="Déplacer vers la gauche"
+                        title={t('tools.organize.moveLeft')}
                         className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 disabled:opacity-20 cursor-pointer rounded-lg"
                       >
                         <ArrowLeft className="w-3.5 h-3.5" />
@@ -347,7 +344,7 @@ export const OrganizeTool: React.FC = () => {
                       <button
                         onClick={() => movePage(index, 'right')}
                         disabled={index === pages.length - 1}
-                        title="Déplacer vers la droite"
+                        title={t('tools.organize.moveRight')}
                         className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 disabled:opacity-20 cursor-pointer rounded-lg"
                       >
                         <ArrowRight className="w-3.5 h-3.5" />
@@ -356,7 +353,7 @@ export const OrganizeTool: React.FC = () => {
 
                     <button
                       onClick={() => toggleDeletePage(index)}
-                      title={page.isDeleted ? 'Restaurer la page' : 'Supprimer la page'}
+                      title={page.isDeleted ? t('tools.organize.restore') : t('tools.organize.remove')}
                       className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
                         page.isDeleted
                           ? 'text-emerald-600 hover:bg-emerald-50'
@@ -375,7 +372,7 @@ export const OrganizeTool: React.FC = () => {
           {!isLoadingThumbnails && (
             <div className="sticky bottom-6 bg-white/95 backdrop-blur-md p-4 sm:p-5 rounded-3xl border border-slate-200/90 shadow-xl flex items-center justify-between gap-4 z-20">
               <div className="text-xs sm:text-sm text-slate-600 font-medium">
-                <span className="font-bold text-slate-900">{remainingCount}</span> page{remainingCount > 1 ? 's' : ''} seront incluses dans le PDF final.
+                {t('tools.organize.summary', { count: remainingCount })}
               </div>
 
               <button
@@ -386,12 +383,12 @@ export const OrganizeTool: React.FC = () => {
                 {isProcessing ? (
                   <>
                     <Loader2 className="w-5 h-5 animate-spin" />
-                    <span>Création du PDF...</span>
+                    <span>{t('tools.organize.processing')}</span>
                   </>
                 ) : (
                   <>
                     <Download className="w-5 h-5" />
-                    <span>Télécharger le PDF réorganisé</span>
+                    <span>{t('tools.organize.btnExport')}</span>
                   </>
                 )}
               </button>

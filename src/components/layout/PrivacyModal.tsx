@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { ShieldCheck, X, Cpu, WifiOff, FileCheck, Heart } from 'lucide-react';
 
 interface PrivacyModalProps {
@@ -7,6 +8,7 @@ interface PrivacyModalProps {
 }
 
 export const PrivacyModal: React.FC<PrivacyModalProps> = ({ isOpen, onClose }) => {
+  const { t } = useTranslation();
   if (!isOpen) return null;
 
   return (
@@ -22,8 +24,8 @@ export const PrivacyModal: React.FC<PrivacyModalProps> = ({ isOpen, onClose }) =
               <ShieldCheck className="w-6 h-6" />
             </div>
             <div>
-              <h3 className="text-lg font-bold text-slate-900">Confidentialité 100% Garantie</h3>
-              <p className="text-xs text-slate-500 font-medium">Traitement 100% en local dans votre navigateur</p>
+              <h3 className="text-lg font-bold text-slate-900">{t('privacyModal.title')}</h3>
+              <p className="text-xs text-slate-500 font-medium">{t('privacyModal.subtitle')}</p>
             </div>
           </div>
           <button
@@ -39,9 +41,9 @@ export const PrivacyModal: React.FC<PrivacyModalProps> = ({ isOpen, onClose }) =
           <div className="p-4 bg-emerald-50/50 rounded-xl border border-emerald-100 flex items-start space-x-3.5">
             <Cpu className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
             <div>
-              <p className="font-semibold text-slate-800">Votre processeur fait tout le travail</p>
+              <p className="font-semibold text-slate-800">{t('privacyModal.cpuTitle')}</p>
               <p className="text-xs text-slate-600 mt-0.5">
-                Les fusions, découpages, signatures et conversions sont exécutés via du code WebAssembly & JavaScript directement sur votre machine.
+                {t('privacyModal.cpuDesc')}
               </p>
             </div>
           </div>
@@ -49,9 +51,9 @@ export const PrivacyModal: React.FC<PrivacyModalProps> = ({ isOpen, onClose }) =
           <div className="p-4 bg-blue-50/50 rounded-xl border border-blue-100 flex items-start space-x-3.5">
             <WifiOff className="w-5 h-5 text-blue-600 shrink-0 mt-0.5" />
             <div>
-              <p className="font-semibold text-slate-800">Fonctionne sans connexion Internet</p>
+              <p className="font-semibold text-slate-800">{t('privacyModal.offlineTitle')}</p>
               <p className="text-xs text-slate-600 mt-0.5">
-                Vous pouvez couper votre Wi-Fi : l'application continuera de fonctionner parfaitement car aucun document n'est jamais transféré vers un serveur.
+                {t('privacyModal.offlineDesc')}
               </p>
             </div>
           </div>
@@ -59,9 +61,9 @@ export const PrivacyModal: React.FC<PrivacyModalProps> = ({ isOpen, onClose }) =
           <div className="p-4 bg-purple-50/50 rounded-xl border border-purple-100 flex items-start space-x-3.5">
             <FileCheck className="w-5 h-5 text-purple-600 shrink-0 mt-0.5" />
             <div>
-              <p className="font-semibold text-slate-800">Zéro fuite de données personnelles</p>
+              <p className="font-semibold text-slate-800">{t('privacyModal.privacyTitle')}</p>
               <p className="text-xs text-slate-600 mt-0.5">
-                Idéal pour les fiches de paie, pièces d'identité, relevés bancaires, déclarations d'impôts ou contrats confidentiels.
+                {t('privacyModal.privacyDesc')}
               </p>
             </div>
           </div>
@@ -70,15 +72,14 @@ export const PrivacyModal: React.FC<PrivacyModalProps> = ({ isOpen, onClose }) =
         {/* Footer */}
         <div className="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between">
           <div className="flex items-center space-x-1 text-xs text-slate-400">
-            <span>Conçu avec</span>
-            <Heart className="w-3.5 h-3.5 text-rose-500 fill-rose-500" />
-            <span>pour le respect de votre vie privée</span>
+            <span>{t('privacyModal.footerNote')}</span>
+            <Heart className="w-3.5 h-3.5 text-rose-500 fill-rose-500 inline ml-1" />
           </div>
           <button
             onClick={onClose}
             className="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold rounded-lg shadow-sm transition-colors cursor-pointer"
           >
-            J'ai compris
+            {t('privacyModal.closeBtn')}
           </button>
         </div>
       </div>
