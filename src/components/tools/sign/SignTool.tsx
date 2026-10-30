@@ -7,6 +7,7 @@ import { fireSuccessConfetti } from '../../../utils/confetti';
 import { stripExtension } from '../../../utils/file-name';
 import { useToolFeedback } from '../../../hooks/useToolFeedback';
 import { useOverlayDrag } from '../../../hooks/useOverlayDrag';
+import { useReleasePdfDocument } from '../../../hooks/useReleasePdfDocument';
 import { Dropzone } from '../../ui/Dropzone';
 import { ToolHeader, HeaderActionButton } from '../../ui/ToolHeader';
 import { FeedbackAlerts } from '../../ui/FeedbackAlerts';
@@ -35,6 +36,7 @@ export const SignTool: React.FC = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [isRenderingPage, setIsRenderingPage] = useState(false);
   const { successMessage, errorMessage, showSuccess, showError, resetFeedback } = useToolFeedback();
+  useReleasePdfDocument(file);
 
   const previewCanvasRef = useRef<HTMLCanvasElement>(null);
   const previewContainerRef = useRef<HTMLDivElement>(null);

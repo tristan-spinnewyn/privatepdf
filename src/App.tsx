@@ -1,16 +1,9 @@
-import { useState } from 'react';
+import { Suspense, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Navbar } from './components/layout/Navbar';
 import { ToolNavigation } from './components/layout/ToolNavigation';
-import {
-  MergeTool,
-  OrganizeTool,
-  SplitTool,
-  SignTool,
-  ImagesToPdfTool,
-  ImageConverterTool,
-  PdfToImagesTool,
-} from './components/tools';
+import { LAZY_TOOLS } from './components/tools/lazy-tools';
+import { LoadingPanel } from './components/ui/LoadingPanel';
 import type { ToolType } from './types';
 import { ShieldCheck, Zap, Lock, HardDriveDownload } from 'lucide-react';
 
@@ -18,26 +11,7 @@ export function App() {
   const { t } = useTranslation();
   const [activeTool, setActiveTool] = useState<ToolType>('merge');
 
-  const renderActiveTool = () => {
-    switch (activeTool) {
-      case 'merge':
-        return <MergeTool />;
-      case 'organize':
-        return <OrganizeTool />;
-      case 'split':
-        return <SplitTool />;
-      case 'sign':
-        return <SignTool />;
-      case 'image-converter':
-        return <ImageConverterTool />;
-      case 'images-to-pdf':
-        return <ImagesToPdfTool />;
-      case 'pdf-to-images':
-        return <PdfToImagesTool />;
-      default:
-        return <MergeTool />;
-    }
-  };
+  const ActiveTool = LAZY_TOOLS[activeTool];
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-slate-50 via-slate-50 to-slate-100/70 text-slate-800">
@@ -70,7 +44,9 @@ export function App() {
 
         {/* Tool Content Workspace */}
         <div className="transition-all duration-300 ease-out">
-          {renderActiveTool()}
+          <Suspense fallback={<LoadingPanel title={t('tools.loading')} spinnerClassName="text-indigo-500" />}>
+            <ActiveTool />
+          </Suspense>
         </div>
 
         {/* Value Proposition Cards / Guarantees */}

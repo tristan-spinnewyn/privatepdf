@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Download } from 'lucide-react';
 import type { PdfFileItem } from '../../../types';
-import { mergePdfs, getPdfPageCount } from '../../../services/pdf';
+import { mergePdfs, getPdfPageCount, releasePdfDocument } from '../../../services/pdf';
 import { downloadPdf } from '../../../utils/download';
 import { fireSuccessConfetti } from '../../../utils/confetti';
 import { moveItem } from '../../../utils/array';
@@ -41,6 +41,9 @@ export const MergeTool: React.FC = () => {
         setItems((current) => current.map((it) => (it.id === item.id ? { ...it, pageCount: count } : it)));
       } catch (err) {
         console.warn('Could not read page count for', item.name, err);
+      } finally {
+        // Merging goes through pdf-lib: the pdf.js document was only needed for the count
+        void releasePdfDocument(item.file);
       }
     }
   };

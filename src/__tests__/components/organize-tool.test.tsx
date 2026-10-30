@@ -1,11 +1,15 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { OrganizeTool } from '../../components/tools';
-import { organizePdf, renderAllPageThumbnails } from '../../services/pdf';
+import { organizePdf, releasePdfDocument, renderAllPageThumbnails } from '../../services/pdf';
 import { downloadPdf } from '../../utils/download';
 import { fileInputs, pdfFile, selectFiles } from './test-utils';
 
-vi.mock('../../services/pdf', () => ({ organizePdf: vi.fn(), renderAllPageThumbnails: vi.fn() }));
+vi.mock('../../services/pdf', () => ({
+  organizePdf: vi.fn(),
+  renderAllPageThumbnails: vi.fn(),
+  releasePdfDocument: vi.fn(),
+}));
 vi.mock('../../utils/download', () => ({ downloadPdf: vi.fn() }));
 vi.mock('../../utils/confetti', () => ({ fireSuccessConfetti: vi.fn() }));
 
@@ -82,5 +86,24 @@ describe('OrganizeTool', () => {
     vi.mocked(renderAllPageThumbnails).mockRejectedValue(new Error('unreadable'));
     selectFiles(fileInputs(document.body)[0], [pdfFile('bad.pdf')]);
     expect(await screen.findByText('Could not read the PDF pages.')).toBeInTheDocument();
+  });
+
+  it('frees the PDF when the user changes file and when the tool closes', async () => {
+    const user = userEvent.setup();
+    const { container, unmount } = render(<OrganizeTool />);
+    const open = async (fileName: string) => {
+      selectFiles(fileInputs(container)[0], [pdfFile(fileName)]);
+      expect(await screen.findByText('3 / 3 pages kept', { exact: false })).toBeInTheDocument();
+    };
+
+    await open('first.pdf');
+    expect(releasePdfDocument).not.toHaveBeenCalled();
+
+    await user.click(screen.getByRole('button', { name: 'Change file' }));
+    expect(releasePdfDocument).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({ name: 'first.pdf' }));
+
+    await open('second.pdf');
+    unmount();
+    expect(releasePdfDocument).toHaveBeenLastCalledWith(expect.objectContaining({ name: 'second.pdf' }));
   });
 });

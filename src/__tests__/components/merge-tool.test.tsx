@@ -2,11 +2,11 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import i18n from '../../i18n';
 import { MergeTool } from '../../components/tools';
-import { getPdfPageCount, mergePdfs } from '../../services/pdf';
+import { getPdfPageCount, mergePdfs, releasePdfDocument } from '../../services/pdf';
 import { downloadPdf } from '../../utils/download';
 import { fileInputs, pdfFile, selectFiles } from './test-utils';
 
-vi.mock('../../services/pdf', () => ({ mergePdfs: vi.fn(), getPdfPageCount: vi.fn() }));
+vi.mock('../../services/pdf', () => ({ mergePdfs: vi.fn(), getPdfPageCount: vi.fn(), releasePdfDocument: vi.fn() }));
 vi.mock('../../utils/download', () => ({ downloadPdf: vi.fn() }));
 vi.mock('../../utils/confetti', () => ({ fireSuccessConfetti: vi.fn() }));
 
@@ -81,5 +81,16 @@ describe('MergeTool', () => {
     } finally {
       await i18n.changeLanguage('en');
     }
+  });
+
+  it('frees each PDF once its pages are counted, even when counting fails', async () => {
+    vi.mocked(getPdfPageCount).mockResolvedValueOnce(3).mockRejectedValueOnce(new Error('unreadable'));
+    vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const { container } = render(<MergeTool />);
+
+    selectFiles(fileInputs(container)[0], [pdfFile('a.pdf'), pdfFile('b.pdf')]);
+
+    await waitFor(() => expect(releasePdfDocument).toHaveBeenCalledTimes(2));
+    expect(vi.mocked(releasePdfDocument).mock.calls.map(([file]) => file.name)).toEqual(['a.pdf', 'b.pdf']);
   });
 });

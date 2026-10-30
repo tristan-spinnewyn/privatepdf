@@ -5,7 +5,7 @@ export { signAndDatePdf } from './pdf-sign';
 export type { SignaturePlacementPercent, DateStamp } from './pdf-sign';
 export { imagesToPdf, computeImagePageLayout } from './images-to-pdf';
 export type { ImagesToPdfOptions, ImagePageLayout } from './images-to-pdf';
-export { getPdfDocument, getPdfPageCount } from './pdf-document-loader';
+export { getPdfDocument, getPdfPageCount, releasePdfDocument } from './pdf-document-loader';
 export { renderPageToCanvas, renderPageThumbnail, renderAllPageThumbnails } from './pdf-page-renderer';
 export type { PageThumbnailImage } from './pdf-page-renderer';
 export { convertPdfToImages, downloadPdfImagesAsZip } from './pdf-to-images';

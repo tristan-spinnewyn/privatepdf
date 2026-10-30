@@ -8,6 +8,7 @@ import { formatBytes } from '../../../utils/format-bytes';
 import { stripExtension } from '../../../utils/file-name';
 import { useToolFeedback } from '../../../hooks/useToolFeedback';
 import { usePageSelection } from '../../../hooks/usePageSelection';
+import { useReleasePdfDocument } from '../../../hooks/useReleasePdfDocument';
 import { Dropzone } from '../../ui/Dropzone';
 import { ToolHeader, HeaderActionButton } from '../../ui/ToolHeader';
 import { FeedbackAlerts } from '../../ui/FeedbackAlerts';
@@ -28,6 +29,7 @@ export const SplitTool: React.FC = () => {
   const { successMessage, errorMessage, showSuccess, showError, resetFeedback } = useToolFeedback();
   const selection = usePageSelection(pages.length);
   const { selectedPages } = selection;
+  useReleasePdfDocument(file);
 
   const handleFileSelected = async (files: File[]) => {
     const selectedFile = files[0];

@@ -1,11 +1,20 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { PdfToImagesTool } from '../../components/tools';
-import { convertPdfToImages, downloadPdfImagesAsZip, type PdfPageImage } from '../../services/pdf';
+import {
+  convertPdfToImages,
+  downloadPdfImagesAsZip,
+  releasePdfDocument,
+  type PdfPageImage,
+} from '../../services/pdf';
 import { downloadBlob } from '../../utils/download';
 import { fileInputs, pdfFile, selectFiles } from './test-utils';
 
-vi.mock('../../services/pdf', () => ({ convertPdfToImages: vi.fn(), downloadPdfImagesAsZip: vi.fn() }));
+vi.mock('../../services/pdf', () => ({
+  convertPdfToImages: vi.fn(),
+  downloadPdfImagesAsZip: vi.fn(),
+  releasePdfDocument: vi.fn(),
+}));
 vi.mock('../../utils/download', () => ({ downloadBlob: vi.fn() }));
 vi.mock('../../utils/confetti', () => ({ fireSuccessConfetti: vi.fn() }));
 
@@ -64,5 +73,24 @@ describe('PdfToImagesTool', () => {
 
     await user.click(screen.getByRole('button', { name: 'Change file' }));
     expect(screen.getByText('Select the PDF document to convert to images')).toBeInTheDocument();
+  });
+
+  it('frees the PDF when the user changes file and when the tool closes', async () => {
+    const user = userEvent.setup();
+    const { container, unmount } = render(<PdfToImagesTool />);
+    const open = async (fileName: string) => {
+      selectFiles(fileInputs(container)[0], [pdfFile(fileName)]);
+      expect(await screen.findByText(fileName)).toBeInTheDocument();
+    };
+
+    await open('first.pdf');
+    expect(releasePdfDocument).not.toHaveBeenCalled();
+
+    await user.click(screen.getByRole('button', { name: 'Change file' }));
+    expect(releasePdfDocument).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({ name: 'first.pdf' }));
+
+    await open('second.pdf');
+    unmount();
+    expect(releasePdfDocument).toHaveBeenLastCalledWith(expect.objectContaining({ name: 'second.pdf' }));
   });
 });

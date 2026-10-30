@@ -6,21 +6,15 @@ import { PDFJS_ASSET_FOLDERS, pdfjsAssetUrl } from '../../config/pdfjs-assets';
 // and worker versions differ, so it must never be a copy that dependency updates skip.
 pdfjsLib.GlobalWorkerOptions.workerSrc = pdfjsWorkerUrl;
 
-// Cache for loaded PDF documents to avoid re-parsing during thumbnail generation
-const docCache = new Map<string, pdfjsLib.PDFDocumentProxy>();
+// Loading tasks of the documents currently in use, so thumbnails and page counts reuse one parsed
+// document. Each entry keeps the whole file and its pdf.js worker state alive until released.
+const docCache = new Map<string, Promise<pdfjsLib.PDFDocumentProxy>>();
 
 function getFileKey(file: File): string {
   return `${file.name}-${file.size}-${file.lastModified}`;
 }
 
-/**
- * Loads a File into a pdf.js document used for rendering
- */
-export async function getPdfDocument(file: File): Promise<pdfjsLib.PDFDocumentProxy> {
-  const key = getFileKey(file);
-  const cached = docCache.get(key);
-  if (cached) return cached;
-
+async function loadPdfDocument(file: File): Promise<pdfjsLib.PDFDocumentProxy> {
   const arrayBuffer = await file.arrayBuffer();
   const loadingTask = pdfjsLib.getDocument({
     data: new Uint8Array(arrayBuffer),
@@ -30,10 +24,41 @@ export async function getPdfDocument(file: File): Promise<pdfjsLib.PDFDocumentPr
     wasmUrl: pdfjsAssetUrl(PDFJS_ASSET_FOLDERS.wasm),
     iccUrl: pdfjsAssetUrl(PDFJS_ASSET_FOLDERS.iccs),
   });
+  return loadingTask.promise;
+}
 
-  const doc = await loadingTask.promise;
-  docCache.set(key, doc);
-  return doc;
+/**
+ * Loads a File into a pdf.js document used for rendering, reusing it until `releasePdfDocument`
+ */
+export function getPdfDocument(file: File): Promise<pdfjsLib.PDFDocumentProxy> {
+  const key = getFileKey(file);
+  const cached = docCache.get(key);
+  if (cached) return cached;
+
+  const loading = loadPdfDocument(file);
+  docCache.set(key, loading);
+  // A failed load must not stay cached: the next request retries
+  loading.catch(() => {
+    if (docCache.get(key) === loading) docCache.delete(key);
+  });
+  return loading;
+}
+
+/**
+ * Frees the pdf.js document of a file once no tool displays it anymore
+ */
+export async function releasePdfDocument(file: File): Promise<void> {
+  const key = getFileKey(file);
+  const loading = docCache.get(key);
+  if (!loading) return;
+
+  docCache.delete(key);
+  try {
+    const doc = await loading;
+    await doc.loadingTask.destroy();
+  } catch {
+    // The document never loaded: nothing to free
+  }
 }
 
 export async function getPdfPageCount(file: File): Promise<number> {

@@ -52,6 +52,7 @@
     "pdfOnly": "Please select PDF files."
   },
   "tools": {
+    "loading": "Loading tool...",
     "merge": {
       "shortLabel": "Merge",
       "headerTitle": "Merge PDF Files",

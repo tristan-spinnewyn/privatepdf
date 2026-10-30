@@ -2,6 +2,7 @@ import * as pdfjsLib from 'pdfjs-dist';
 import {
   getPdfDocument,
   getPdfPageCount,
+  releasePdfDocument,
   renderPageThumbnail,
   renderAllPageThumbnails,
   renderPageToCanvas,
@@ -29,7 +30,8 @@ function mockPdf(numPages: number) {
     getViewport: ({ scale }: { scale: number }) => ({ width: 200 * scale, height: 300 * scale }),
     render,
   };
-  const doc = { numPages, getPage: vi.fn(async () => page) };
+  // pdf.js 6 documents are destroyed through their loading task
+  const doc = { numPages, getPage: vi.fn(async () => page), loadingTask: { destroy: vi.fn(async () => {}) } };
   vi.mocked(pdfjsLib.getDocument).mockReturnValue({ promise: Promise.resolve(doc) } as never);
   return doc;
 }
@@ -69,6 +71,48 @@ describe('pdf document loader', () => {
     expect(first).toBe(second);
     expect(pdfjsLib.getDocument).toHaveBeenCalledTimes(1);
     expect(await getPdfPageCount(file)).toBe(4);
+  });
+
+  it('shares one loading task between concurrent loads of the same file', async () => {
+    mockPdf(2);
+    const file = uniquePdfFile();
+
+    const [first, second] = await Promise.all([getPdfDocument(file), getPdfDocument(file)]);
+
+    expect(first).toBe(second);
+    expect(pdfjsLib.getDocument).toHaveBeenCalledTimes(1);
+  });
+
+  it('destroys a released document and loads it again on the next request', async () => {
+    const doc = mockPdf(2);
+    const file = uniquePdfFile();
+    await getPdfDocument(file);
+
+    await releasePdfDocument(file);
+
+    expect(doc.loadingTask.destroy).toHaveBeenCalledTimes(1);
+    await getPdfDocument(file);
+    expect(pdfjsLib.getDocument).toHaveBeenCalledTimes(2);
+  });
+
+  it('destroys a document released while it is still loading', async () => {
+    const doc = mockPdf(1);
+    const file = uniquePdfFile();
+    const loading = getPdfDocument(file);
+
+    await releasePdfDocument(file);
+
+    expect(await loading).toBe(doc);
+    expect(doc.loadingTask.destroy).toHaveBeenCalledTimes(1);
+  });
+
+  it('ignores the release of a document that was never loaded or failed to load', async () => {
+    vi.mocked(pdfjsLib.getDocument).mockReturnValue({ promise: Promise.reject(new Error('corrupt')) } as never);
+    const file = uniquePdfFile();
+    await expect(getPdfDocument(file)).rejects.toThrow('corrupt');
+
+    await expect(releasePdfDocument(file)).resolves.toBeUndefined();
+    await expect(releasePdfDocument(uniquePdfFile())).resolves.toBeUndefined();
   });
 
   it('loads cMaps, standard fonts, wasm decoders and ICC profiles from this origin', async () => {

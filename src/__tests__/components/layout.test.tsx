@@ -4,22 +4,28 @@ import i18n from '../../i18n';
 import { App } from '../../App';
 import { Navbar } from '../../components/layout/Navbar';
 
-vi.mock('../../components/tools', () => ({
-  MergeTool: () => <div>merge tool</div>,
-  OrganizeTool: () => <div>organize tool</div>,
-  SplitTool: () => <div>split tool</div>,
-  SignTool: () => <div>sign tool</div>,
+// Each tool module is loaded on demand: mock them one by one
+vi.mock('../../components/tools/merge/MergeTool', () => ({ MergeTool: () => <div>merge tool</div> }));
+vi.mock('../../components/tools/organize/OrganizeTool', () => ({ OrganizeTool: () => <div>organize tool</div> }));
+vi.mock('../../components/tools/split/SplitTool', () => ({ SplitTool: () => <div>split tool</div> }));
+vi.mock('../../components/tools/sign/SignTool', () => ({ SignTool: () => <div>sign tool</div> }));
+vi.mock('../../components/tools/image-converter/ImageConverterTool', () => ({
   ImageConverterTool: () => <div>image converter tool</div>,
+}));
+vi.mock('../../components/tools/images-to-pdf/ImagesToPdfTool', () => ({
   ImagesToPdfTool: () => <div>images to pdf tool</div>,
+}));
+vi.mock('../../components/tools/pdf-to-images/PdfToImagesTool', () => ({
   PdfToImagesTool: () => <div>pdf to images tool</div>,
 }));
 
 describe('App', () => {
-  it('shows the merge tool first and switches tools from the navigation', async () => {
+  it('shows a loader while the merge tool loads, then switches tools from the navigation', async () => {
     const user = userEvent.setup();
     render(<App />);
 
-    expect(screen.getByText('merge tool')).toBeInTheDocument();
+    expect(screen.getByText('Loading tool...')).toBeInTheDocument();
+    expect(await screen.findByText('merge tool')).toBeInTheDocument();
 
     const expectations: [string, string][] = [
       ['Organize', 'organize tool'],
@@ -32,7 +38,7 @@ describe('App', () => {
     ];
     for (const [label, content] of expectations) {
       await user.click(screen.getByRole('button', { name: label }));
-      expect(screen.getByText(content)).toBeInTheDocument();
+      expect(await screen.findByText(content)).toBeInTheDocument();
     }
   });
 });
