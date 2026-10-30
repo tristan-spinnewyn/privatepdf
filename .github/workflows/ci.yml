@@ -87,8 +87,11 @@ jobs:
           headers=$(curl -fsSI http://localhost:8080/)
           echo "$headers" | grep -qi '^content-security-policy:' || { echo "Missing CSP header"; exit 1; }
 
-          worker_type=$(curl -fsS -o /dev/null -w '%{content_type}' http://localhost:8080/pdf.worker.min.mjs)
-          echo "pdf.js worker Content-Type: $worker_type"
+          # The worker file name is content-hashed by Vite
+          worker_path=$(docker exec privatepdf sh -c 'cd /usr/share/nginx/html && ls assets/pdf.worker.min-*.mjs')
+          [ -n "$worker_path" ] || { echo "pdf.js worker missing from the image"; exit 1; }
+          worker_type=$(curl -fsS -o /dev/null -w '%{content_type}' "http://localhost:8080/$worker_path")
+          echo "pdf.js worker /$worker_path Content-Type: $worker_type"
           [ "$worker_type" = "application/javascript" ] || exit 1
 
       - name: Show container logs on failure
