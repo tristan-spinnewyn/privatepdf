@@ -80,12 +80,12 @@ describe('OrganizeTool', () => {
     const user = await loadDocument();
 
     await user.click(screen.getByRole('button', { name: /Download reorganized PDF/ }));
-    expect(await screen.findByText(/Error organizing PDF/)).toBeInTheDocument();
+    expect(await screen.findByText('An error occurred while organizing the PDF.')).toBeInTheDocument();
 
     await user.click(screen.getByRole('button', { name: 'Change file' }));
     vi.mocked(renderAllPageThumbnails).mockRejectedValue(new Error('unreadable'));
     selectFiles(fileInputs(document.body)[0], [pdfFile('bad.pdf')]);
-    expect(await screen.findByText(/Error reading PDF pages/)).toBeInTheDocument();
+    expect(await screen.findByText('Could not read the PDF pages.')).toBeInTheDocument();
   });
 
   it('frees the PDF when the user changes file and when the tool closes', async () => {

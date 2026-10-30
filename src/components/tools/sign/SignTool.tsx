@@ -55,7 +55,7 @@ export const SignTool: React.FC = () => {
       .catch((err: unknown) => {
         if (isMounted) {
           console.error(err);
-          showError('Rendering error / Erreur de rendu.');
+          showError(t('tools.sign.errorRender'));
         }
       })
       .finally(() => {
@@ -65,7 +65,7 @@ export const SignTool: React.FC = () => {
     return () => {
       isMounted = false;
     };
-  }, [file, currentPage, showError]);
+  }, [file, currentPage, showError, t]);
 
   const handleFileSelected = async (files: File[]) => {
     const selected = files[0];
@@ -77,7 +77,7 @@ export const SignTool: React.FC = () => {
       setTotalPages(await getPdfPageCount(selected));
     } catch (err) {
       console.error(err);
-      showError("Cannot open PDF / Impossible d'ouvrir ce fichier PDF.");
+      showError(t('tools.sign.errorOpen'));
     }
   };
 
@@ -101,7 +101,7 @@ export const SignTool: React.FC = () => {
       showSuccess(t('tools.sign.success'));
     } catch (err) {
       console.error(err);
-      showError("Error signing document / Erreur d'application.");
+      showError(t('tools.sign.error'));
     } finally {
       setIsProcessing(false);
     }

@@ -143,8 +143,12 @@ describe('nginx configuration', () => {
       expect(csp!.get('script-src')).not.toContain("'unsafe-inline'");
     });
 
-    it('lets pdf.js run its wasm decoders and module worker, and heic2any its eval-based worker', () => {
-      expect(csp!.get('script-src')).toEqual(["'self'", "'wasm-unsafe-eval'", "'unsafe-eval'"]);
+    it('never allows string evaluation (eval, new Function)', () => {
+      expect([...csp!.values()].flat()).not.toContain("'unsafe-eval'");
+    });
+
+    it('lets pdf.js run its wasm decoders and the HEIC decoder its blob: worker', () => {
+      expect(csp!.get('script-src')).toEqual(["'self'", "'wasm-unsafe-eval'"]);
       expect(csp!.get('worker-src')).toEqual(["'self'", 'blob:']);
     });
 

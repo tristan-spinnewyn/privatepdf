@@ -62,6 +62,7 @@ describe('useImageConversionQueue', () => {
 
     await waitFor(() => expect(result.current.items[1].status).toBe('error'));
     expect(result.current.items[0]).toMatchObject({ status: 'done', name: 'a.ico', convertedSize: 3 });
+    expect(result.current.items[1].error).toBe('Conversion failed.');
     expect(result.current.doneItems).toHaveLength(1);
     expect(convertImage).toHaveBeenCalledWith(expect.any(File), {
       targetFormat: 'ico',

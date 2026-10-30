@@ -1,5 +1,6 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import i18n from '../../i18n';
 import { MergeTool } from '../../components/tools';
 import { getPdfPageCount, mergePdfs, releasePdfDocument } from '../../services/pdf';
 import { downloadPdf } from '../../utils/download';
@@ -62,7 +63,24 @@ describe('MergeTool', () => {
     selectFiles(fileInputs(container)[0], [pdfFile('a.pdf'), pdfFile('b.pdf')]);
     await user.click(await screen.findByRole('button', { name: /Merge 2 PDFs/ }));
 
-    expect(await screen.findByText(/Error merging documents/)).toBeInTheDocument();
+    expect(await screen.findByText('An error occurred while merging the documents.')).toBeInTheDocument();
+  });
+
+  it('shows the merge error in French', async () => {
+    const user = userEvent.setup();
+    vi.mocked(mergePdfs).mockRejectedValue(new Error('broken'));
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+    await i18n.changeLanguage('fr');
+    try {
+      const { container } = render(<MergeTool />);
+
+      selectFiles(fileInputs(container)[0], [pdfFile('a.pdf'), pdfFile('b.pdf')]);
+      await user.click(await screen.findByRole('button', { name: /Fusionner les 2 PDF/ }));
+
+      expect(await screen.findByText('Une erreur est survenue lors de la fusion des documents.')).toBeInTheDocument();
+    } finally {
+      await i18n.changeLanguage('en');
+    }
   });
 
   it('frees each PDF once its pages are counted, even when counting fails', async () => {

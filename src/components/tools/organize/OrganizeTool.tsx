@@ -39,7 +39,7 @@ export const OrganizeTool: React.FC = () => {
       loadPages(await renderAllPageThumbnails(selectedFile, THUMBNAIL_WIDTH));
     } catch (err) {
       console.error(err);
-      showError('Error reading PDF pages / Erreur de lecture.');
+      showError(t('common.errorReadPages'));
     } finally {
       setIsLoadingThumbnails(false);
     }
@@ -60,7 +60,7 @@ export const OrganizeTool: React.FC = () => {
       showSuccess(t('tools.organize.success'));
     } catch (err) {
       console.error(err);
-      showError("Error organizing PDF / Erreur d'organisation.");
+      showError(t('tools.organize.error'));
     } finally {
       setIsProcessing(false);
     }

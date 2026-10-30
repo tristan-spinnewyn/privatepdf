@@ -70,7 +70,7 @@ export const ImagesToPdfTool: React.FC = () => {
       showSuccess(t('tools.imagesToPdf.success', { count: items.length }));
     } catch (err) {
       console.error(err);
-      showError('Error converting images / Erreur de conversion.');
+      showError(t('tools.imagesToPdf.error'));
     } finally {
       setIsProcessing(false);
     }

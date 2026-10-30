@@ -37,6 +37,9 @@
   "footer": {
     "rights": "© 2026 PDF Privé — Outil 100% Client-Side. Vos documents restent strictement sur votre ordinateur."
   },
+  "common": {
+    "errorReadPages": "Impossible de lire les pages du PDF."
+  },
   "dropzone": {
     "dropNow": "Déposez vos fichiers !",
     "pdfTitle": "Glissez-déposez vos fichiers PDF ici",
@@ -45,7 +48,8 @@
     "imagesTitle": "Glissez-déposez vos images ici",
     "imagesDesc": "Tous formats acceptés : JPG, PNG, WebP, AVIF, HEIC/HEIF (iOS), SVG, BMP, ICO",
     "imagesBadge": "JPG, PNG, WebP, HEIC",
-    "noLimit": "Sans limite de taille"
+    "noLimit": "Sans limite de taille",
+    "pdfOnly": "Veuillez sélectionner des fichiers au format PDF."
   },
   "tools": {
     "loading": "Chargement de l'outil...",
@@ -68,7 +72,8 @@
       "btnMerge": "Fusionner les {{count}} PDF",
       "processing": "Fusion en cours...",
       "success": "Les {{count}} documents ont été assemblés et téléchargés avec succès !",
-      "errorMin": "Veuillez ajouter au moins 2 fichiers PDF pour effectuer une fusion."
+      "errorMin": "Veuillez ajouter au moins 2 fichiers PDF pour effectuer une fusion.",
+      "error": "Une erreur est survenue lors de la fusion des documents."
     },
     "organize": {
       "shortLabel": "Organiser",
@@ -93,7 +98,8 @@
       "summary": "{{count}} page(s) seront incluses dans le PDF final.",
       "btnExport": "Télécharger le PDF réorganisé",
       "processing": "Création du PDF...",
-      "success": "Votre document réorganisé a été généré et téléchargé !"
+      "success": "Votre document réorganisé a été généré et téléchargé !",
+      "error": "Une erreur est survenue lors de l'organisation du PDF."
     },
     "split": {
       "shortLabel": "Découper",
@@ -112,7 +118,8 @@
       "btnExtract": "Extraire les {{count}} pages",
       "processing": "Extraction en cours...",
       "success": "{{count}} page(s) extraite(s) et téléchargée(s) !",
-      "errorMin": "Veuillez sélectionner au moins une page à extraire."
+      "errorMin": "Veuillez sélectionner au moins une page à extraire.",
+      "error": "Une erreur est survenue lors de l'extraction des pages."
     },
     "sign": {
       "shortLabel": "Signer",
@@ -137,7 +144,10 @@
       "btnSign": "Appliquer et Télécharger le PDF signé",
       "processing": "Application de la signature...",
       "success": "Votre document a été signé et téléchargé avec succès !",
-      "dragHelp": "Faites glisser la signature et la date à l'endroit désiré"
+      "dragHelp": "Faites glisser la signature et la date à l'endroit désiré",
+      "errorOpen": "Impossible d'ouvrir ce fichier PDF.",
+      "errorRender": "Impossible d'afficher l'aperçu de la page.",
+      "error": "Une erreur est survenue lors de la signature du document."
     },
     "imageConverter": {
       "shortLabel": "Convertir Image",
@@ -157,7 +167,8 @@
       "btnZip": "Tout télécharger (ZIP)",
       "btnConvert": "Convertir les {{count}} images",
       "processing": "Conversion locale...",
-      "success": "Conversion terminée avec succès !"
+      "success": "Conversion terminée avec succès !",
+      "error": "Échec de la conversion."
     },
     "imagesToPdf": {
       "shortLabel": "Images -> PDF",
@@ -176,7 +187,8 @@
       "summary": "{{count}} image(s) prêtes à être converties en PDF A4.",
       "btnGenerate": "Générer et Télécharger le PDF",
       "processing": "Conversion en cours...",
-      "success": "{{count}} photo(s) convertie(s) en PDF A4 avec succès !"
+      "success": "{{count}} photo(s) convertie(s) en PDF A4 avec succès !",
+      "error": "Une erreur est survenue lors de la conversion des images."
     },
     "pdfToImages": {
       "shortLabel": "PDF -> Images",

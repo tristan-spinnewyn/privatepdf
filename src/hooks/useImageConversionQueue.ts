@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { ImageConversionItem, ImageFormat } from '../types';
 import { convertImage, isHeicFile } from '../services/image';
 import { createItemId } from '../utils/item-id';
@@ -35,6 +36,7 @@ function createConversionItem(file: File, targetFormat: ImageFormat): ImageConve
  * List of images queued for format conversion and their conversion status
  */
 export function useImageConversionQueue() {
+  const { t } = useTranslation();
   const [items, setItems] = useState<ImageConversionItem[]>([]);
 
   const addFiles = (files: File[], targetFormat: ImageFormat) => {
@@ -90,7 +92,7 @@ export function useImageConversionQueue() {
         updatedItems[i] = {
           ...item,
           status: 'error',
-          error: 'Conversion failed / Échec de conversion',
+          error: t('tools.imageConverter.error'),
         };
       }
       setItems([...updatedItems]);

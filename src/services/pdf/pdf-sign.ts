@@ -25,7 +25,7 @@ export async function signAndDatePdf(
   const pageIndex = pageNumber - 1;
 
   if (pageIndex < 0 || pageIndex >= pdfDoc.getPageCount()) {
-    throw new Error('Page introuvable');
+    throw new Error(`Page ${pageNumber} not found.`);
   }
 
   const page = pdfDoc.getPage(pageIndex);

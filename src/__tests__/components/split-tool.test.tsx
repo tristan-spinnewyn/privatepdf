@@ -67,12 +67,12 @@ describe('SplitTool', () => {
     const user = await loadDocument();
 
     await user.click(screen.getByRole('button', { name: /Extract 1 pages/ }));
-    expect(await screen.findByText(/Error extracting pages/)).toBeInTheDocument();
+    expect(await screen.findByText('An error occurred while extracting the pages.')).toBeInTheDocument();
 
     await user.click(screen.getByRole('button', { name: 'Change file' }));
     vi.mocked(renderAllPageThumbnails).mockRejectedValue(new Error('unreadable'));
     selectFiles(fileInputs(document.body)[0], [pdfFile('bad.pdf')]);
-    expect(await screen.findByText(/Error reading PDF pages/)).toBeInTheDocument();
+    expect(await screen.findByText('Could not read the PDF pages.')).toBeInTheDocument();
   });
 
   it('frees the PDF when the user changes file and when the tool closes', async () => {
