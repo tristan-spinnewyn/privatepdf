@@ -67,6 +67,22 @@ describe('pdf document loader', () => {
     expect(pdfjsLib.getDocument).toHaveBeenCalledTimes(1);
     expect(await getPdfPageCount(file)).toBe(4);
   });
+
+  it('loads cMaps, standard fonts, wasm decoders and ICC profiles from this origin', async () => {
+    mockPdf(1);
+
+    await getPdfDocument(uniquePdfFile());
+
+    expect(pdfjsLib.getDocument).toHaveBeenCalledWith(
+      expect.objectContaining({
+        cMapUrl: '/pdfjs/cmaps/',
+        cMapPacked: true,
+        standardFontDataUrl: '/pdfjs/standard_fonts/',
+        wasmUrl: '/pdfjs/wasm/',
+        iccUrl: '/pdfjs/iccs/',
+      })
+    );
+  });
 });
 
 describe('pdf page renderer', () => {
