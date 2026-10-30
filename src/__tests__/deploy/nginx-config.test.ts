@@ -6,6 +6,20 @@ const SECURITY_HEADERS_INCLUDE = 'include /etc/nginx/snippets/security-headers.c
 
 const config = readFileSync(resolve(process.cwd(), 'nginx.conf'), 'utf8');
 const dockerfile = readFileSync(resolve(process.cwd(), 'Dockerfile'), 'utf8');
+const securityHeaders = readFileSync(resolve(process.cwd(), 'nginx/security-headers.conf'), 'utf8');
+
+// Parses the Content-Security-Policy header of the shared snippet into directive -> sources
+function parseContentSecurityPolicy(snippet: string): Map<string, string[]> | undefined {
+  const header = snippet.match(/add_header\s+Content-Security-Policy\s+"([^"]+)"\s+always;/);
+  if (!header) return undefined;
+  return new Map(
+    header[1]
+      .split(';')
+      .map((directive) => directive.trim().split(/\s+/))
+      .filter(([name]) => name)
+      .map(([name, ...sources]) => [name, sources])
+  );
+}
 
 interface LocationBlock {
   pattern: string;
@@ -52,6 +66,13 @@ describe('nginx configuration', () => {
     expect(workerLocation!.body).not.toMatch(/immutable/);
   });
 
+  it('revalidates the unhashed pdf.js data files instead of caching them as immutable', () => {
+    const pdfjsAssetsLocation = locations.find(({ pattern }) => pattern === '^~ /pdfjs/');
+    expect(pdfjsAssetsLocation).toBeDefined();
+    expect(pdfjsAssetsLocation!.body).toMatch(/add_header\s+Cache-Control\s+"no-cache";/);
+    expect(pdfjsAssetsLocation!.body).not.toMatch(/immutable/);
+  });
+
   it('applies the security headers at server level and in every location', () => {
     const serverLevelConfig = config.slice(0, config.indexOf('location'));
     expect(serverLevelConfig).toContain(SECURITY_HEADERS_INCLUDE);
@@ -64,5 +85,40 @@ describe('nginx configuration', () => {
     expect(dockerfile).toMatch(
       /COPY\s+nginx\/security-headers\.conf\s+\/etc\/nginx\/snippets\/security-headers\.conf/
     );
+  });
+
+  describe('Content-Security-Policy', () => {
+    const csp = parseContentSecurityPolicy(securityHeaders);
+
+    it('is sent with every response through the shared snippet', () => {
+      expect(csp).toBeDefined();
+    });
+
+    it('only allows this origin by default', () => {
+      expect(csp!.get('default-src')).toEqual(["'self'"]);
+    });
+
+    it('never allows external origins or inline scripts', () => {
+      const allSources = [...csp!.values()].flat();
+      expect(allSources.filter((source) => /^(https?:|\*|[\w-]+\.[\w.-]+)/.test(source))).toEqual([]);
+      expect(csp!.get('script-src')).not.toContain("'unsafe-inline'");
+    });
+
+    it('lets pdf.js run its wasm decoders and module worker, and heic2any its eval-based worker', () => {
+      expect(csp!.get('script-src')).toEqual(["'self'", "'wasm-unsafe-eval'", "'unsafe-eval'"]);
+      expect(csp!.get('worker-src')).toEqual(["'self'", 'blob:']);
+    });
+
+    it('allows blob: and data: URLs for rendered pages, images and downloads', () => {
+      expect(csp!.get('img-src')).toEqual(["'self'", 'blob:', 'data:']);
+      expect(csp!.get('connect-src')).toEqual(["'self'", 'blob:', 'data:']);
+    });
+
+    it('locks down plugins, base URL, form targets and framing', () => {
+      expect(csp!.get('object-src')).toEqual(["'none'"]);
+      expect(csp!.get('base-uri')).toEqual(["'self'"]);
+      expect(csp!.get('form-action')).toEqual(["'self'"]);
+      expect(csp!.get('frame-ancestors')).toEqual(["'self'"]);
+    });
   });
 });
