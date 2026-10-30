@@ -46,4 +46,15 @@ describe('Dependabot configuration', () => {
       expect(config).toMatch(new RegExp(`package-ecosystem:\\s*"?${ecosystem}"?`));
     }
   });
+
+  it('ignores updates the project deliberately does not follow automatically', () => {
+    const config = readFileSync(dependabotPath, 'utf8');
+    // Node majors (Node 25+ drops corepack, used by the Dockerfile) and their typings follow the runtime
+    expect(config).toMatch(/dependency-name:\s*"node"\s*\n\s*update-types:\s*\["version-update:semver-major"\]/);
+    expect(config).toMatch(/dependency-name:\s*"@types\/node"\s*\n\s*update-types:\s*\["version-update:semver-major"\]/);
+    // nginx odd minors are the mainline branch; stay on the stable one
+    expect(config).toMatch(
+      /dependency-name:\s*"nginxinc\/nginx-unprivileged"\s*\n\s*update-types:\s*\["version-update:semver-minor"\]/
+    );
+  });
 });
