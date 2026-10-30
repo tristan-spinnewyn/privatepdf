@@ -32,7 +32,7 @@ describe('CI workflow', () => {
     expect(workflow).toMatch(/load:\s*true/);
     expect(workflow).toMatch(/docker run[^\n]*-p\s+\d+:3000/);
     expect(workflow).toMatch(/\.State\.Health\.Status/);
-    expect(workflow).toMatch(/pdf\.worker\.min\.mjs/);
+    expect(workflow).toMatch(/assets\/pdf\.worker\.min-\*\.mjs/);
     expect(workflow).toMatch(/application\/javascript/);
     expect(workflow).toMatch(/content-security-policy/i);
   });
@@ -45,5 +45,16 @@ describe('Dependabot configuration', () => {
     for (const ecosystem of ['npm', 'github-actions', 'docker']) {
       expect(config).toMatch(new RegExp(`package-ecosystem:\\s*"?${ecosystem}"?`));
     }
+  });
+
+  it('ignores updates the project deliberately does not follow automatically', () => {
+    const config = readFileSync(dependabotPath, 'utf8');
+    // Node majors (Node 25+ drops corepack, used by the Dockerfile) and their typings follow the runtime
+    expect(config).toMatch(/dependency-name:\s*"node"\s*\n\s*update-types:\s*\["version-update:semver-major"\]/);
+    expect(config).toMatch(/dependency-name:\s*"@types\/node"\s*\n\s*update-types:\s*\["version-update:semver-major"\]/);
+    // nginx odd minors are the mainline branch; stay on the stable one
+    expect(config).toMatch(
+      /dependency-name:\s*"nginxinc\/nginx-unprivileged"\s*\n\s*update-types:\s*\["version-update:semver-minor"\]/
+    );
   });
 });

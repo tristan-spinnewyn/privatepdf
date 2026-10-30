@@ -1,8 +1,10 @@
 import * as pdfjsLib from 'pdfjs-dist';
+import pdfjsWorkerUrl from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
 import { PDFJS_ASSET_FOLDERS, pdfjsAssetUrl } from '../../config/pdfjs-assets';
 
-// Point worker to static worker file in public/
-pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.mjs';
+// Worker emitted by Vite from the installed package: pdf.js refuses to run when the API
+// and worker versions differ, so it must never be a copy that dependency updates skip.
+pdfjsLib.GlobalWorkerOptions.workerSrc = pdfjsWorkerUrl;
 
 // Cache for loaded PDF documents to avoid re-parsing during thumbnail generation
 const docCache = new Map<string, pdfjsLib.PDFDocumentProxy>();
