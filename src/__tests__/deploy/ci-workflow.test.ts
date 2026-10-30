@@ -35,6 +35,7 @@ describe('CI workflow', () => {
     expect(workflow).toMatch(/assets\/pdf\.worker\.min-\*\.mjs/);
     expect(workflow).toMatch(/application\/javascript/);
     expect(workflow).toMatch(/content-security-policy/i);
+    expect(workflow).toMatch(/cache-control:[^\n]*no-cache/i);
   });
 });
 

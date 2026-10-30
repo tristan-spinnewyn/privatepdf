@@ -86,6 +86,8 @@ jobs:
 
           headers=$(curl -fsSI http://localhost:8080/)
           echo "$headers" | grep -qi '^content-security-policy:' || { echo "Missing CSP header"; exit 1; }
+          echo "$headers" | grep -qi '^cache-control:.*no-cache' || { echo "index.html must be revalidated"; exit 1; }
+          curl -fsSI http://localhost:8080/some/spa/route | grep -qi '^cache-control:.*no-cache' || { echo "SPA fallback must be revalidated"; exit 1; }
 
           # The worker file name is content-hashed by Vite
           worker_path=$(docker exec privatepdf sh -c 'cd /usr/share/nginx/html && ls assets/pdf.worker.min-*.mjs')
