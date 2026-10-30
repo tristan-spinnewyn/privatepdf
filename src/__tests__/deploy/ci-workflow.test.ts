@@ -32,7 +32,7 @@ describe('CI workflow', () => {
     expect(workflow).toMatch(/load:\s*true/);
     expect(workflow).toMatch(/docker run[^\n]*-p\s+\d+:3000/);
     expect(workflow).toMatch(/\.State\.Health\.Status/);
-    expect(workflow).toMatch(/pdf\.worker\.min\.mjs/);
+    expect(workflow).toMatch(/assets\/pdf\.worker\.min-\*\.mjs/);
     expect(workflow).toMatch(/application\/javascript/);
     expect(workflow).toMatch(/content-security-policy/i);
   });
