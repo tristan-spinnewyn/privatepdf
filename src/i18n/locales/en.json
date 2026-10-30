@@ -48,6 +48,7 @@
     "noLimit": "No file size limit"
   },
   "tools": {
+    "loading": "Loading tool...",
     "merge": {
       "shortLabel": "Merge",
       "headerTitle": "Merge PDF Files",

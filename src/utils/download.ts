@@ -1,4 +1,3 @@
-import JSZip from 'jszip';
 import { ensureExtension } from './file-name';
 
 /**
@@ -24,6 +23,8 @@ export function downloadPdf(data: Uint8Array, filename: string) {
  * Creates and downloads a ZIP file containing multiple files
  */
 export async function downloadZip(files: { name: string; blob: Blob }[], zipName: string) {
+  // Loaded on demand: every tool imports this module, only the image exports need JSZip
+  const { default: JSZip } = await import('jszip');
   const zip = new JSZip();
   files.forEach((f) => zip.file(f.name, f.blob));
 

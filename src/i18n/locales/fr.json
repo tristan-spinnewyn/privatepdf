@@ -48,6 +48,7 @@
     "noLimit": "Sans limite de taille"
   },
   "tools": {
+    "loading": "Chargement de l'outil...",
     "merge": {
       "shortLabel": "Fusionner",
       "headerTitle": "Fusionner des PDF",
