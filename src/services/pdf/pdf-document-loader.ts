@@ -1,4 +1,5 @@
 import * as pdfjsLib from 'pdfjs-dist';
+import { PDFJS_ASSET_FOLDERS, pdfjsAssetUrl } from '../../config/pdfjs-assets';
 
 // Point worker to static worker file in public/
 pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.mjs';
@@ -21,8 +22,11 @@ export async function getPdfDocument(file: File): Promise<pdfjsLib.PDFDocumentPr
   const arrayBuffer = await file.arrayBuffer();
   const loadingTask = pdfjsLib.getDocument({
     data: new Uint8Array(arrayBuffer),
-    cMapUrl: 'https://cdn.jsdelivr.net/npm/pdfjs-dist@4.10.38/cmaps/',
+    cMapUrl: pdfjsAssetUrl(PDFJS_ASSET_FOLDERS.cMaps),
     cMapPacked: true,
+    standardFontDataUrl: pdfjsAssetUrl(PDFJS_ASSET_FOLDERS.standardFonts),
+    wasmUrl: pdfjsAssetUrl(PDFJS_ASSET_FOLDERS.wasm),
+    iccUrl: pdfjsAssetUrl(PDFJS_ASSET_FOLDERS.iccs),
   });
 
   const doc = await loadingTask.promise;
