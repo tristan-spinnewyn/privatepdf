@@ -115,16 +115,16 @@ describe('SignTool', () => {
     vi.mocked(renderPageToCanvas).mockRejectedValue(new Error('render'));
     vi.mocked(signAndDatePdf).mockRejectedValue(new Error('sign'));
     const { user, container } = await loadDocument();
-    expect(await screen.findByText(/Rendering error/)).toBeInTheDocument();
+    expect(await screen.findByText('Could not render the page preview.')).toBeInTheDocument();
 
     drawSignature(container);
     await user.click(await screen.findByRole('button', { name: /Apply & Download signed PDF/ }));
-    expect(await screen.findByText(/Error signing document/)).toBeInTheDocument();
+    expect(await screen.findByText('An error occurred while signing the document.')).toBeInTheDocument();
 
     await user.click(screen.getByRole('button', { name: 'Change file' }));
     vi.mocked(renderPageToCanvas).mockResolvedValue({ width: 700, height: 900 });
     vi.mocked(getPdfPageCount).mockRejectedValue(new Error('open'));
     selectFiles(fileInputs(document.body)[0], [pdfFile('bad.pdf')]);
-    expect(await screen.findByText(/Cannot open PDF/)).toBeInTheDocument();
+    expect(await screen.findByText('Could not open this PDF file.')).toBeInTheDocument();
   });
 });

@@ -4,7 +4,7 @@ import { loadEditablePdf } from './pdf-loader';
 export async function splitPdf(file: File, pageNumbers: number[]): Promise<Uint8Array> {
   // pageNumbers is 1-indexed
   if (!pageNumbers.length) {
-    throw new Error('Veuillez sélectionner au moins une page.');
+    throw new Error('Select at least one page.');
   }
 
   const originalPdf = await loadEditablePdf(file);
@@ -15,7 +15,7 @@ export async function splitPdf(file: File, pageNumbers: number[]): Promise<Uint8
     .filter(idx => idx >= 0 && idx < originalPdf.getPageCount());
 
   if (!indices.length) {
-    throw new Error('Aucune page valide sélectionnée.');
+    throw new Error('No valid page selected.');
   }
 
   const copiedPages = await newPdf.copyPages(originalPdf, indices);

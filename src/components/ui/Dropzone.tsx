@@ -21,6 +21,7 @@ export const Dropzone: React.FC<DropzoneProps> = ({
 }) => {
   const { t } = useTranslation();
   const [isDragOver, setIsDragOver] = useState(false);
+  const [rejectionMessage, setRejectionMessage] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const defaultTitle = accept === '.pdf' ? t('dropzone.pdfTitle') : t('dropzone.imagesTitle');
@@ -64,10 +65,9 @@ export const Dropzone: React.FC<DropzoneProps> = ({
       const pdfs = files.filter(
         f => f.type === 'application/pdf' || f.name.toLowerCase().endsWith('.pdf')
       );
+      setRejectionMessage(pdfs.length > 0 ? null : t('dropzone.pdfOnly'));
       if (pdfs.length > 0) {
         onFilesSelected(multiple ? pdfs : [pdfs[0]]);
-      } else {
-        alert('Veuillez sélectionner des fichiers au format PDF / Please select PDF files.');
       }
     } else {
       onFilesSelected(multiple ? files : [files[0]]);
@@ -125,6 +125,12 @@ export const Dropzone: React.FC<DropzoneProps> = ({
           {t('dropzone.noLimit')}
         </span>
       </div>
+
+      {rejectionMessage && (
+        <p role="alert" className="mt-4 text-sm font-medium text-rose-600">
+          {rejectionMessage}
+        </p>
+      )}
     </div>
   );
 };

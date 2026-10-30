@@ -26,7 +26,7 @@ export async function loadImageElement(file: File): Promise<HTMLImageElement> {
       blob = await heicTo({ blob: file, type: 'image/jpeg', quality: 0.95 });
     } catch (err) {
       console.error('HEIC conversion error:', err);
-      throw new Error(`Impossible de décoder le fichier photo iOS HEIC (${file.name})`);
+      throw new Error(`Could not decode HEIC image ${file.name}`);
     }
   }
 
@@ -39,7 +39,7 @@ export async function loadImageElement(file: File): Promise<HTMLImageElement> {
     };
     img.onerror = () => {
       URL.revokeObjectURL(url);
-      reject(new Error(`Échec du chargement de l'image ${file.name}`));
+      reject(new Error(`Failed to load image ${file.name}`));
     };
     img.src = url;
   });

@@ -69,7 +69,7 @@ export const MergeTool: React.FC = () => {
       showSuccess(t('tools.merge.success', { count: items.length }));
     } catch (err) {
       console.error(err);
-      showError('Error merging documents / Erreur lors de la fusion.');
+      showError(t('tools.merge.error'));
     } finally {
       setIsProcessing(false);
     }

@@ -12,7 +12,7 @@ export async function organizePdf(
 
   const validIndices = pageOrder.filter(idx => !deletedPages.has(idx));
   if (validIndices.length === 0) {
-    throw new Error('Le document résultant ne contient aucune page.');
+    throw new Error('The resulting document has no pages.');
   }
 
   const copiedPages = await newPdf.copyPages(originalPdf, validIndices);
