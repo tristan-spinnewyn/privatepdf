@@ -19,7 +19,7 @@ export function canvasToBmpBlob(canvas: HTMLCanvasElement): Blob {
   const view = new DataView(buffer);
 
   // BMP Header (14 bytes)
-  view.setUint16(0, 0x4d42, false); // 'BM'
+  view.setUint16(0, 0x424d, false); // 'BM' (0x42 'B', 0x4D 'M')
   view.setUint32(2, fileSize, true);
   view.setUint16(6, 0, true);
   view.setUint16(8, 0, true);

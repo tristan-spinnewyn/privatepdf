@@ -5,6 +5,18 @@ async function bytesOf(blob: Blob) {
 }
 
 describe('canvasToBmpBlob', () => {
+  it('starts with the "BM" file signature', async () => {
+    const canvas = {
+      width: 1,
+      height: 1,
+      getContext: () => ({ getImageData: () => ({ data: new Uint8ClampedArray(4) }) }),
+    } as unknown as HTMLCanvasElement;
+
+    const view = await bytesOf(canvasToBmpBlob(canvas));
+
+    expect(String.fromCharCode(view.getUint8(0), view.getUint8(1))).toBe('BM');
+  });
+
   it('encodes RGBA pixels as a padded bottom-up 24-bit BMP', async () => {
     // 1x2 image: top pixel red, bottom pixel blue
     const pixels = new Uint8ClampedArray([255, 0, 0, 255, 0, 0, 255, 255]);
