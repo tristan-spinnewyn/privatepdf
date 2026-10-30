@@ -16,6 +16,14 @@ export interface PdfFileItem {
   previewUrl?: string;
 }
 
+export interface ImageItem {
+  id: string;
+  file: File;
+  previewUrl: string;
+  name: string;
+  size: number;
+}
+
 export interface PageThumbnail {
   pageNumber: number; // 1-indexed original page
   rotation: number; // 0, 90, 180, 270 degrees

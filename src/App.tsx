@@ -2,13 +2,15 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Navbar } from './components/layout/Navbar';
 import { ToolNavigation } from './components/layout/ToolNavigation';
-import { MergeTool } from './components/tools/MergeTool';
-import { OrganizeTool } from './components/tools/OrganizeTool';
-import { SplitTool } from './components/tools/SplitTool';
-import { SignTool } from './components/tools/SignTool';
-import { ImagesToPdfTool } from './components/tools/ImagesToPdfTool';
-import { ImageConverterTool } from './components/tools/ImageConverterTool';
-import { PdfToImagesTool } from './components/tools/PdfToImagesTool';
+import {
+  MergeTool,
+  OrganizeTool,
+  SplitTool,
+  SignTool,
+  ImagesToPdfTool,
+  ImageConverterTool,
+  PdfToImagesTool,
+} from './components/tools';
 import type { ToolType } from './types';
 import { ShieldCheck, Zap, Lock, HardDriveDownload } from 'lucide-react';
 
