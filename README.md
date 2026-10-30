@@ -94,7 +94,25 @@ Open `http://localhost:5173` in your browser.
 
 ### 3. Run Automated Tests
 ```bash
-pnpm test
+pnpm test           # Vitest unit and component tests
+pnpm test:coverage  # with coverage (80% minimum)
+```
+
+### Project Structure
+```
+src/
+├── components/
+│   ├── layout/      # Navbar, tool navigation, privacy modal
+│   ├── tools/       # One folder per tool (merge, organize, split, sign...)
+│   └── ui/          # Shared UI building blocks (dropzone, header, alerts...)
+├── hooks/           # Stateful logic extracted from the tools
+├── services/
+│   ├── pdf/         # PDF operations (pdf-lib) and rendering (pdf.js)
+│   └── image/       # Image decoding (HEIC), conversion and encoders
+├── utils/           # Generic helpers (download, file names, page ranges...)
+├── i18n/            # Translations (fr, en)
+├── types/           # Shared TypeScript types
+└── __tests__/       # Tests, mirroring the folders above
 ```
 
 ### 4. Build for Production
