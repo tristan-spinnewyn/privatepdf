@@ -87,6 +87,37 @@ describe('nginx configuration', () => {
     );
   });
 
+  describe('hardening headers', () => {
+    function headerValue(name: string): string | undefined {
+      return securityHeaders.match(new RegExp(`add_header\\s+${name}\\s+"([^"]+)"\\s+always;`))?.[1];
+    }
+
+    it('enforces HTTPS for a year with HSTS', () => {
+      expect(headerValue('Strict-Transport-Security')).toMatch(/max-age=31536000/);
+    });
+
+    it('disables powerful browser features the app never uses', () => {
+      const policy = headerValue('Permissions-Policy');
+      for (const feature of ['camera', 'microphone', 'geolocation', 'payment', 'usb']) {
+        expect(policy).toContain(`${feature}=()`);
+      }
+    });
+
+    it('isolates the browsing context from cross-origin windows', () => {
+      expect(headerValue('Cross-Origin-Opener-Policy')).toBe('same-origin');
+    });
+
+    it('hides the nginx version', () => {
+      expect(config).toMatch(/^\s*server_tokens\s+off;/m);
+    });
+  });
+
+  it('sends a single Cache-Control header for long-term cached assets', () => {
+    const assetLocation = findLocationFor(locations, '/assets/index-abc.js');
+    expect(assetLocation!.body).not.toMatch(/expires/);
+    expect(assetLocation!.body).toMatch(/add_header\s+Cache-Control\s+"public, max-age=31536000, immutable";/);
+  });
+
   describe('Content-Security-Policy', () => {
     const csp = parseContentSecurityPolicy(securityHeaders);
 
