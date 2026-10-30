@@ -1,7 +1,8 @@
-import heic2any from 'heic2any';
+import { heicTo } from 'heic-to/csp';
 import { isHeicFile, loadImageElement } from '../../services/image';
 
-vi.mock('heic2any', () => ({ default: vi.fn() }));
+// The CSP-safe build: the default heic-to build needs 'unsafe-eval' (Emscripten embind)
+vi.mock('heic-to/csp', () => ({ heicTo: vi.fn() }));
 
 describe('isHeicFile', () => {
   it('detects iOS HEIC / HEIF files by extension or MIME type', () => {
@@ -38,7 +39,7 @@ describe('loadImageElement', () => {
     expect(img).toBeInstanceOf(HTMLImageElement);
     expect(loadedSources).toEqual(['blob:image']);
     expect(URL.revokeObjectURL).toHaveBeenCalledWith('blob:image');
-    expect(heic2any).not.toHaveBeenCalled();
+    expect(heicTo).not.toHaveBeenCalled();
   });
 
   it('rejects when the image cannot be decoded', async () => {
@@ -49,16 +50,17 @@ describe('loadImageElement', () => {
 
   it('converts HEIC files to JPEG before loading them', async () => {
     const jpeg = new Blob(['jpeg'], { type: 'image/jpeg' });
-    vi.mocked(heic2any).mockResolvedValue([jpeg]);
+    vi.mocked(heicTo).mockResolvedValue(jpeg);
+    const heic = new File(['x'], 'IMG_1.heic');
 
-    await loadImageElement(new File(['x'], 'IMG_1.heic'));
+    await loadImageElement(heic);
 
-    expect(heic2any).toHaveBeenCalledWith(expect.objectContaining({ toType: 'image/jpeg' }));
+    expect(heicTo).toHaveBeenCalledWith(expect.objectContaining({ blob: heic, type: 'image/jpeg' }));
     expect(URL.createObjectURL).toHaveBeenCalledWith(jpeg);
   });
 
   it('rejects with the file name when HEIC decoding fails', async () => {
-    vi.mocked(heic2any).mockRejectedValue(new Error('bad heic'));
+    vi.mocked(heicTo).mockRejectedValue(new Error('bad heic'));
     vi.spyOn(console, 'error').mockImplementation(() => {});
 
     await expect(loadImageElement(new File(['x'], 'IMG_2.heic'))).rejects.toThrow('Could not decode HEIC image IMG_2.heic');
