@@ -45,7 +45,7 @@ export const SplitTool: React.FC = () => {
       }
     } catch (err) {
       console.error(err);
-      showError('Error reading PDF pages / Erreur de lecture.');
+      showError(t('common.errorReadPages'));
     } finally {
       setIsLoading(false);
     }
@@ -66,7 +66,7 @@ export const SplitTool: React.FC = () => {
       showSuccess(t('tools.split.success', { count: sortedPages.length }));
     } catch (err) {
       console.error(err);
-      showError("Error extracting pages / Erreur lors de l'extraction.");
+      showError(t('tools.split.error'));
     } finally {
       setIsProcessing(false);
     }

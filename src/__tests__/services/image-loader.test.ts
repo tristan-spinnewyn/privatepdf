@@ -43,7 +43,7 @@ describe('loadImageElement', () => {
 
   it('rejects when the image cannot be decoded', async () => {
     imageBehaviour = 'error';
-    await expect(loadImageElement(new File(['x'], 'broken.png'))).rejects.toThrow('broken.png');
+    await expect(loadImageElement(new File(['x'], 'broken.png'))).rejects.toThrow('Failed to load image broken.png');
     expect(URL.revokeObjectURL).toHaveBeenCalledWith('blob:image');
   });
 
@@ -61,6 +61,6 @@ describe('loadImageElement', () => {
     vi.mocked(heic2any).mockRejectedValue(new Error('bad heic'));
     vi.spyOn(console, 'error').mockImplementation(() => {});
 
-    await expect(loadImageElement(new File(['x'], 'IMG_2.heic'))).rejects.toThrow('IMG_2.heic');
+    await expect(loadImageElement(new File(['x'], 'IMG_2.heic'))).rejects.toThrow('Could not decode HEIC image IMG_2.heic');
   });
 });

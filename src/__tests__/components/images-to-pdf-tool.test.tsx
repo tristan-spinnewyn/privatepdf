@@ -67,6 +67,6 @@ describe('ImagesToPdfTool', () => {
 
     vi.mocked(imagesToPdf).mockRejectedValue(new Error('broken'));
     await user.click(screen.getByRole('button', { name: /Generate & Download PDF/ }));
-    expect(await screen.findByText(/Error converting images/)).toBeInTheDocument();
+    expect(await screen.findByText('An error occurred while converting the images.')).toBeInTheDocument();
   });
 });

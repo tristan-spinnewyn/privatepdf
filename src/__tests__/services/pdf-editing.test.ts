@@ -29,7 +29,7 @@ describe('organizePdf', () => {
 
   it('rejects a document without any remaining page', async () => {
     const file = await createPdfFile(1);
-    await expect(organizePdf(file, [0], new Map(), new Set([0]))).rejects.toThrow();
+    await expect(organizePdf(file, [0], new Map(), new Set([0]))).rejects.toThrow('The resulting document has no pages.');
   });
 });
 
@@ -42,12 +42,12 @@ describe('splitPdf', () => {
 
   it('rejects an empty selection', async () => {
     const file = await createPdfFile(2);
-    await expect(splitPdf(file, [])).rejects.toThrow();
+    await expect(splitPdf(file, [])).rejects.toThrow('Select at least one page.');
   });
 
   it('rejects a selection without any valid page', async () => {
     const file = await createPdfFile(2);
-    await expect(splitPdf(file, [0, 7])).rejects.toThrow();
+    await expect(splitPdf(file, [0, 7])).rejects.toThrow('No valid page selected.');
   });
 });
 
@@ -82,6 +82,6 @@ describe('signAndDatePdf', () => {
 
   it('rejects a page outside the document', async () => {
     const file = await createPdfFile(1);
-    await expect(signAndDatePdf(file, 3, PNG_DATA_URL, placement)).rejects.toThrow();
+    await expect(signAndDatePdf(file, 3, PNG_DATA_URL, placement)).rejects.toThrow('Page 3 not found.');
   });
 });
