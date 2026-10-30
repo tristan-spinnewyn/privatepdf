@@ -15,6 +15,9 @@ vi.mock('pdfjs-dist', () => ({
   getDocument: vi.fn(),
 }));
 
+// The worker URL comes from the installed pdfjs-dist package, so its version always matches the API
+vi.mock('pdfjs-dist/build/pdf.worker.min.mjs?url', () => ({ default: '/assets/pdf.worker.min-hash.mjs' }));
+
 vi.mock('../../utils/download', () => ({
   downloadZip: vi.fn(),
 }));
@@ -52,8 +55,8 @@ afterEach(() => {
 });
 
 describe('pdf document loader', () => {
-  it('points pdf.js to the self-hosted worker', () => {
-    expect(pdfjsLib.GlobalWorkerOptions.workerSrc).toBe('/pdf.worker.min.mjs');
+  it('points pdf.js to the worker bundled from the installed pdfjs-dist package', () => {
+    expect(pdfjsLib.GlobalWorkerOptions.workerSrc).toBe('/assets/pdf.worker.min-hash.mjs');
   });
 
   it('loads a document once and reuses it for the same file', async () => {
