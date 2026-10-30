@@ -1,7 +1,7 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { SignTool } from '../../components/tools';
-import { getPdfPageCount, renderPageToCanvas, signAndDatePdf } from '../../services/pdf';
+import { getPdfPageCount, releasePdfDocument, renderPageToCanvas, signAndDatePdf } from '../../services/pdf';
 import { downloadPdf } from '../../utils/download';
 import { fileInputs, imageFile, pdfFile, selectFiles } from './test-utils';
 
@@ -9,6 +9,7 @@ vi.mock('../../services/pdf', () => ({
   getPdfPageCount: vi.fn(),
   renderPageToCanvas: vi.fn(),
   signAndDatePdf: vi.fn(),
+  releasePdfDocument: vi.fn(),
 }));
 vi.mock('../../utils/download', () => ({ downloadPdf: vi.fn() }));
 vi.mock('../../utils/confetti', () => ({ fireSuccessConfetti: vi.fn() }));
@@ -126,5 +127,24 @@ describe('SignTool', () => {
     vi.mocked(getPdfPageCount).mockRejectedValue(new Error('open'));
     selectFiles(fileInputs(document.body)[0], [pdfFile('bad.pdf')]);
     expect(await screen.findByText(/Cannot open PDF/)).toBeInTheDocument();
+  });
+
+  it('frees the PDF when the user changes file and when the tool closes', async () => {
+    const user = userEvent.setup();
+    const { container, unmount } = render(<SignTool />);
+    const open = async (fileName: string) => {
+      selectFiles(fileInputs(container)[0], [pdfFile(fileName)]);
+      expect(await screen.findByText('1 / 2')).toBeInTheDocument();
+    };
+
+    await open('first.pdf');
+    expect(releasePdfDocument).not.toHaveBeenCalled();
+
+    await user.click(screen.getByRole('button', { name: 'Change file' }));
+    expect(releasePdfDocument).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({ name: 'first.pdf' }));
+
+    await open('second.pdf');
+    unmount();
+    expect(releasePdfDocument).toHaveBeenLastCalledWith(expect.objectContaining({ name: 'second.pdf' }));
   });
 });

@@ -8,6 +8,7 @@ import { formatBytes } from '../../../utils/format-bytes';
 import { stripExtension } from '../../../utils/file-name';
 import { useToolFeedback } from '../../../hooks/useToolFeedback';
 import { buildOrganizePlan, useOrganizePages } from '../../../hooks/useOrganizePages';
+import { useReleasePdfDocument } from '../../../hooks/useReleasePdfDocument';
 import { Dropzone } from '../../ui/Dropzone';
 import { ToolHeader, HeaderActionButton } from '../../ui/ToolHeader';
 import { FeedbackAlerts } from '../../ui/FeedbackAlerts';
@@ -26,6 +27,7 @@ export const OrganizeTool: React.FC = () => {
   const { successMessage, errorMessage, showSuccess, showError, resetFeedback } = useToolFeedback();
   const { pages, remainingCount, loadPages, clearPages, rotatePage, rotateAll, toggleDeletePage, movePage } =
     useOrganizePages();
+  useReleasePdfDocument(file);
 
   const loadFile = async (selectedFile: File) => {
     setFile(selectedFile);

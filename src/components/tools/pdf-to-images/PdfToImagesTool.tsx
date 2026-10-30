@@ -11,6 +11,7 @@ import { downloadBlob } from '../../../utils/download';
 import { fireSuccessConfetti } from '../../../utils/confetti';
 import { formatBytes } from '../../../utils/format-bytes';
 import { useToolFeedback } from '../../../hooks/useToolFeedback';
+import { useReleasePdfDocument } from '../../../hooks/useReleasePdfDocument';
 import { Dropzone } from '../../ui/Dropzone';
 import { ToolHeader, HeaderActionButton } from '../../ui/ToolHeader';
 import { FeedbackAlerts } from '../../ui/FeedbackAlerts';
@@ -28,6 +29,7 @@ export const PdfToImagesTool: React.FC = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [progress, setProgress] = useState<{ current: number; total: number } | null>(null);
   const { successMessage, errorMessage, showSuccess, showError, resetFeedback } = useToolFeedback();
+  useReleasePdfDocument(file);
 
   const handleFileSelected = (files: File[]) => {
     setFile(files[0]);
