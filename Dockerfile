@@ -28,11 +28,11 @@ COPY nginx/security-headers.conf /etc/nginx/snippets/security-headers.conf
 # Copy compiled static assets from builder stage
 COPY --from=builder /app/dist /usr/share/nginx/html
 
-# 8080 is the unprivileged default; 80 and 3000 stay until the Coolify port is confirmed
-EXPOSE 80 3000 8080
+# Container port Coolify routes production traffic to
+EXPOSE 3000
 
 # 127.0.0.1 rather than localhost, which may resolve to IPv6 on alpine
 HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \
-    CMD wget -q --spider http://127.0.0.1:8080/ || exit 1
+    CMD wget -q --spider http://127.0.0.1:3000/ || exit 1
 
 CMD ["nginx", "-g", "daemon off;"]
