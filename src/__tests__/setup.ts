@@ -1,6 +1,6 @@
 import '@testing-library/jest-dom/vitest';
 
-// heic2any spawns a Web Worker at import time; jsdom does not implement workers
+// jsdom does not implement Web Workers; stub them for code that creates one
 class WorkerStub {
   onmessage = null;
   postMessage() {}

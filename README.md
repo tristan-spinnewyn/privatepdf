@@ -73,7 +73,7 @@ Most free online PDF utilities (like Smallpdf or iLovePDF) upload your documents
   - `pdf-lib`: Pure client-side PDF manipulation (merge, split, rotate, signature embedding, image conversion)
   - `pdfjs-dist`: Client-side rendering of page thumbnails via HTML5 canvas
 - **Image Processing & Formats**:
-  - `heic2any`: Client-side WebAssembly conversion of Apple iOS HEIC / HEIF photos
+  - `heic-to` (CSP-safe build): Client-side conversion of Apple iOS HEIC / HEIF photos (libheif), loaded on demand
   - `jszip`: In-browser ZIP archive generation for batch downloads
 - **Confetti**: `canvas-confetti`
 

@@ -1,5 +1,3 @@
-import heic2any from 'heic2any';
-
 /**
  * Checks if a file is an Apple iOS HEIC / HEIF format
  */
@@ -22,12 +20,10 @@ export async function loadImageElement(file: File): Promise<HTMLImageElement> {
 
   if (isHeicFile(file)) {
     try {
-      const converted = await heic2any({
-        blob: file,
-        toType: 'image/jpeg',
-        quality: 0.95,
-      });
-      blob = Array.isArray(converted) ? converted[0] : converted;
+      // Loaded on demand: the libheif decoder is ~3 MB and only HEIC photos need it.
+      // The /csp build avoids new Function(), so the page CSP needs no 'unsafe-eval'.
+      const { heicTo } = await import('heic-to/csp');
+      blob = await heicTo({ blob: file, type: 'image/jpeg', quality: 0.95 });
     } catch (err) {
       console.error('HEIC conversion error:', err);
       throw new Error(`Impossible de décoder le fichier photo iOS HEIC (${file.name})`);
