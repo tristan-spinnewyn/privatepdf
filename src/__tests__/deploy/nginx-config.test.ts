@@ -73,6 +73,14 @@ describe('nginx configuration', () => {
     expect(pdfjsAssetsLocation!.body).not.toMatch(/immutable/);
   });
 
+  it('revalidates index.html so browsers never run a stale bundle after a deploy', () => {
+    // "/" and the SPA fallback both end up as an internal redirect to /index.html
+    const indexLocation = locations.find(({ pattern }) => pattern === '= /index.html');
+    expect(indexLocation).toBeDefined();
+    expect(indexLocation!.body).toMatch(/add_header\s+Cache-Control\s+"no-cache";/);
+    expect(indexLocation!.body).toContain(SECURITY_HEADERS_INCLUDE);
+  });
+
   it('applies the security headers at server level and in every location', () => {
     const serverLevelConfig = config.slice(0, config.indexOf('location'));
     expect(serverLevelConfig).toContain(SECURITY_HEADERS_INCLUDE);
