@@ -20,7 +20,7 @@
     "heic-to": "^1.6.7",
     "i18next": "^26.5.11",
     "jszip": "^3.10.2",
-    "lucide-react": "^1.62.0",
+    "lucide-react": "^1.64.0",
     "pdf-lib": "^1.17.1",
     "pdfjs-dist": "^6.4.299",
     "react": "^19.3.1",
