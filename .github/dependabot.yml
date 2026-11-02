@@ -4,6 +4,10 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+    # Let a new release age before it is proposed: compromised versions are usually caught and
+    # pulled within a week, and patch/minor PRs are merged and deployed without a human review
+    cooldown:
+      default-days: 7
     open-pull-requests-limit: 5
     groups:
       # One PR for every minor and patch bump; majors stay separate
@@ -18,6 +22,8 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+    cooldown:
+      default-days: 7
     groups:
       github-actions:
         patterns: ["*"]
@@ -26,6 +32,8 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+    cooldown:
+      default-days: 7
     ignore:
       # Node majors are upgraded deliberately: Node 25+ no longer ships corepack, used by the Dockerfile
       - dependency-name: "node"

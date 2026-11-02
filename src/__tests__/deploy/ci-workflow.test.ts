@@ -3,6 +3,7 @@ import { existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
 const workflow = readFileSync(resolve(process.cwd(), '.github/workflows/ci.yml'), 'utf8');
+const workspacePath = resolve(process.cwd(), 'pnpm-workspace.yaml');
 const dependabotPath = resolve(process.cwd(), '.github/dependabot.yml');
 
 describe('CI workflow', () => {
@@ -48,6 +49,15 @@ describe('Dependabot configuration', () => {
     }
   });
 
+  it('waits a week before proposing a new release, so compromised versions get caught first', () => {
+    const config = readFileSync(dependabotPath, 'utf8');
+    const cooldowns = [...config.matchAll(/cooldown:\s*\n\s*default-days:\s*(\d+)/g)].map((match) => Number(match[1]));
+    expect(cooldowns).toHaveLength(3);
+    for (const days of cooldowns) {
+      expect(days).toBeGreaterThanOrEqual(7);
+    }
+  });
+
   it('ignores updates the project deliberately does not follow automatically', () => {
     const config = readFileSync(dependabotPath, 'utf8');
     // Node majors (Node 25+ drops corepack, used by the Dockerfile) and their typings follow the runtime
@@ -57,5 +67,18 @@ describe('Dependabot configuration', () => {
     expect(config).toMatch(
       /dependency-name:\s*"nginxinc\/nginx-unprivileged"\s*\n\s*update-types:\s*\["version-update:semver-minor"\]/
     );
+  });
+});
+
+describe('pnpm settings', () => {
+  it('refuses to resolve package versions published less than three days ago', () => {
+    const settings = readFileSync(workspacePath, 'utf8');
+    const minutes = Number(settings.match(/^minimumReleaseAge:\s*(\d+)/m)?.[1]);
+    expect(minutes).toBeGreaterThanOrEqual(3 * 24 * 60);
+  });
+
+  it('ships the pnpm settings to the Docker build before installing dependencies', () => {
+    const dockerfile = readFileSync(resolve(process.cwd(), 'Dockerfile'), 'utf8');
+    expect(dockerfile).toMatch(/COPY package\.json pnpm-lock\.yaml pnpm-workspace\.yaml \.\/\s*\n[\s\S]*pnpm install/);
   });
 });

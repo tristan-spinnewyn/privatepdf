@@ -25,6 +25,10 @@ describe('Dependabot auto-merge workflow', () => {
     expect(workflow()).toMatch(/gh pr merge --auto --squash/);
   });
 
+  it('grants no permission at workflow level, only to the auto-merge job', () => {
+    expect(workflow()).toMatch(/^permissions:\s*\{\}/m);
+  });
+
   it('grants only the permissions it needs and pins actions to a commit SHA', () => {
     expect(workflow()).toMatch(/permissions:\s*\n\s*contents: write\s*\n\s*pull-requests: write/);
     const uses = [...workflow().matchAll(/uses:\s*(\S+)/g)].map((match) => match[1]);
