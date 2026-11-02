@@ -215,5 +215,9 @@
       "success": "{{count}} page(s) convertie(s) en images !",
       "error": "Une erreur est survenue lors de l'extraction des images du document PDF."
     }
+  },
+  "errors": {
+    "encryptedPdf": "« {{name}} » est protégé par un mot de passe ou chiffré. Retirez la protection, puis réessayez.",
+    "imageTooLarge": "« {{name}} » est trop grande pour être traitée dans le navigateur (plus de 100 mégapixels)."
   }
 }

@@ -26,7 +26,7 @@ export const SplitTool: React.FC = () => {
   const [pages, setPages] = useState<PageThumbnailImage[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
-  const { successMessage, errorMessage, showSuccess, showError, resetFeedback } = useToolFeedback();
+  const { successMessage, errorMessage, showSuccess, showError, showProcessingError, resetFeedback } = useToolFeedback();
   const selection = usePageSelection(pages.length);
   const { selectedPages } = selection;
   useReleasePdfDocument(file);
@@ -67,8 +67,7 @@ export const SplitTool: React.FC = () => {
       fireSuccessConfetti();
       showSuccess(t('tools.split.success', { count: sortedPages.length }));
     } catch (err) {
-      console.error(err);
-      showError(t('tools.split.error'));
+      showProcessingError(err, t('tools.split.error'));
     } finally {
       setIsProcessing(false);
     }

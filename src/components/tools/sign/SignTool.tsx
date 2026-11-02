@@ -35,7 +35,7 @@ export const SignTool: React.FC = () => {
   const dateText = editedDateText ?? formatToday(i18n.language);
   const [isProcessing, setIsProcessing] = useState(false);
   const [isRenderingPage, setIsRenderingPage] = useState(false);
-  const { successMessage, errorMessage, showSuccess, showError, resetFeedback } = useToolFeedback();
+  const { successMessage, errorMessage, showSuccess, showError, showProcessingError, resetFeedback } = useToolFeedback();
   useReleasePdfDocument(file);
 
   const previewCanvasRef = useRef<HTMLCanvasElement>(null);
@@ -100,8 +100,7 @@ export const SignTool: React.FC = () => {
       fireSuccessConfetti();
       showSuccess(t('tools.sign.success'));
     } catch (err) {
-      console.error(err);
-      showError(t('tools.sign.error'));
+      showProcessingError(err, t('tools.sign.error'));
     } finally {
       setIsProcessing(false);
     }

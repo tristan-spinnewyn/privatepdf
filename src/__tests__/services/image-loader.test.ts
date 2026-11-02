@@ -1,5 +1,6 @@
 import { heicTo } from 'heic-to/csp';
 import { isHeicFile, loadImageElement } from '../../services/image';
+import { ImageTooLargeError } from '../../services/image/image-errors';
 
 // The CSP-safe build: the default heic-to build needs 'unsafe-eval' (Emscripten embind)
 vi.mock('heic-to/csp', () => ({ heicTo: vi.fn() }));
@@ -46,6 +47,21 @@ describe('loadImageElement', () => {
     imageBehaviour = 'error';
     await expect(loadImageElement(new File(['x'], 'broken.png'))).rejects.toThrow('Failed to load image broken.png');
     expect(URL.revokeObjectURL).toHaveBeenCalledWith('blob:image');
+  });
+
+  it('rejects images over 100 megapixels before any canvas is allocated for them', async () => {
+    vi.spyOn(HTMLImageElement.prototype, 'naturalWidth', 'get').mockReturnValue(20_000);
+    vi.spyOn(HTMLImageElement.prototype, 'naturalHeight', 'get').mockReturnValue(5_001);
+
+    await expect(loadImageElement(new File(['x'], 'bomb.png'))).rejects.toBeInstanceOf(ImageTooLargeError);
+    expect(URL.revokeObjectURL).toHaveBeenCalledWith('blob:image');
+  });
+
+  it('accepts an image of exactly 100 megapixels', async () => {
+    vi.spyOn(HTMLImageElement.prototype, 'naturalWidth', 'get').mockReturnValue(20_000);
+    vi.spyOn(HTMLImageElement.prototype, 'naturalHeight', 'get').mockReturnValue(5_000);
+
+    await expect(loadImageElement(new File(['x'], 'big.png'))).resolves.toBeInstanceOf(HTMLImageElement);
   });
 
   it('converts HEIC files to JPEG before loading them', async () => {

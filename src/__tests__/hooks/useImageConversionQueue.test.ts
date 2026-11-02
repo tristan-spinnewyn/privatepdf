@@ -1,6 +1,7 @@
 import { act, renderHook, waitFor } from '@testing-library/react';
 import { useImageConversionQueue } from '../../hooks/useImageConversionQueue';
 import { convertImage } from '../../services/image';
+import { ImageTooLargeError } from '../../services/image/image-errors';
 
 vi.mock('../../services/image', () => ({
   convertImage: vi.fn(),
@@ -48,6 +49,17 @@ describe('useImageConversionQueue', () => {
     act(() => result.current.clearAll());
     expect(result.current.items).toEqual([]);
     expect(URL.revokeObjectURL).toHaveBeenCalledWith('blob:2');
+  });
+
+  it('explains why an oversized image could not be converted', async () => {
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+    vi.mocked(convertImage).mockRejectedValueOnce(new ImageTooLargeError('huge.png'));
+    const { result } = renderHook(() => useImageConversionQueue());
+    act(() => result.current.addFiles([new File(['x'], 'huge.png')], 'jpg'));
+
+    await act(() => result.current.convertAll({ quality: 0.8, scale: 1, icoSize: 32 }));
+
+    expect(result.current.items[0].error).toBe('"huge.png" is too large to be processed in the browser (over 100 megapixels).');
   });
 
   it('converts every item and records successes and failures', async () => {

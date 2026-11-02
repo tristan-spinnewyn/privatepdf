@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event';
 import i18n from '../../i18n';
 import { MergeTool } from '../../components/tools';
 import { getPdfPageCount, mergePdfs, releasePdfDocument } from '../../services/pdf';
+import { EncryptedPdfError } from '../../services/pdf/pdf-errors';
 import { downloadPdf } from '../../utils/download';
 import { fileInputs, pdfFile, selectFiles } from './test-utils';
 
@@ -64,6 +65,20 @@ describe('MergeTool', () => {
     await user.click(await screen.findByRole('button', { name: /Merge 2 PDFs/ }));
 
     expect(await screen.findByText('An error occurred while merging the documents.')).toBeInTheDocument();
+  });
+
+  it('tells the user which file is encrypted', async () => {
+    const user = userEvent.setup();
+    vi.mocked(mergePdfs).mockRejectedValue(new EncryptedPdfError('b.pdf'));
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+    const { container } = render(<MergeTool />);
+
+    selectFiles(fileInputs(container)[0], [pdfFile('a.pdf'), pdfFile('b.pdf')]);
+    await user.click(await screen.findByRole('button', { name: /Merge 2 PDFs/ }));
+
+    expect(
+      await screen.findByText('"b.pdf" is password-protected or encrypted. Remove the protection, then try again.')
+    ).toBeInTheDocument();
   });
 
   it('shows the merge error in French', async () => {

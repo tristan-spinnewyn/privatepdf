@@ -28,9 +28,11 @@ export const test = base.extend<{ cspGuard: void }>({
 
 export { expect }
 
-export async function createPdf(pageCount: number): Promise<Buffer> {
+export async function createPdf(pageCount: number, options: { encrypted?: boolean } = {}): Promise<Buffer> {
   const doc = await PDFDocument.create()
   for (let i = 0; i < pageCount; i++) doc.addPage([400, 600])
+  // pdf-lib cannot encrypt: an /Encrypt trailer entry is enough for the app to treat the file as encrypted
+  if (options.encrypted) doc.context.trailerInfo.Encrypt = doc.context.obj({ Filter: 'Standard', V: 2, R: 3 })
   return Buffer.from(await doc.save())
 }
 
