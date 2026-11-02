@@ -139,7 +139,16 @@ PrivatePDF is 100% self-hostable with **Coolify** in just a few clicks:
 5. Set port to `80` (automatically detected).
 6. Click **Deploy**! Coolify will handle SSL/TLS certificates and automatic reverse proxying.
 
-### Method 2: Docker Compose
+### Method 2: Prebuilt Image
+Every commit on `main` that passes CI is published to GHCR, with an SBOM and a provenance attestation:
+```
+ghcr.io/tristan-spinnewyn/privatepdf:latest
+ghcr.io/tristan-spinnewyn/privatepdf:<commit-sha>
+```
+In Coolify, create a **Docker Image** resource from it (exposed port `3000`). Pinning a commit SHA
+deploys exactly the image CI tested and makes rollbacks a tag change.
+
+### Method 3: Docker Compose
 ```bash
 docker compose up -d --build
 ```

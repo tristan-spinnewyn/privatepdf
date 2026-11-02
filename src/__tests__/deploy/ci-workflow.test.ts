@@ -62,6 +62,32 @@ describe('CI workflow', () => {
   });
 });
 
+describe('Image publication', () => {
+  const publishJob = workflow.slice(workflow.indexOf('\n  publish:'));
+
+  it('only publishes from main once lint, tests and the image checks pass', () => {
+    expect(publishJob).toMatch(/needs:\s*\[check, docker\]/);
+    expect(publishJob).toMatch(/if:\s*github\.event_name == 'push' && github\.ref == 'refs\/heads\/main'/);
+  });
+
+  it('grants package write access to the publish job only', () => {
+    expect(workflow.slice(0, workflow.indexOf('\njobs:'))).not.toMatch(/packages:\s*write/);
+    expect(publishJob).toMatch(/packages:\s*write/);
+  });
+
+  it('pushes to GHCR, tagged by commit SHA, with an SBOM and provenance attestation', () => {
+    expect(publishJob).toMatch(/registry:\s*ghcr\.io/);
+    expect(publishJob).toMatch(/ghcr\.io\/tristan-spinnewyn\/privatepdf:\$\{\{ github\.sha \}\}/);
+    expect(publishJob).toMatch(/push:\s*true/);
+    expect(publishJob).toMatch(/sbom:\s*true/);
+    expect(publishJob).toMatch(/provenance:\s*mode=max/);
+  });
+
+  it('does not restore a build cache that pull requests can write to', () => {
+    expect(publishJob).not.toMatch(/cache-from/);
+  });
+});
+
 describe('Dependabot configuration', () => {
   it('keeps npm packages, GitHub Actions and Docker base images up to date', () => {
     expect(existsSync(dependabotPath)).toBe(true);
