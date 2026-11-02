@@ -30,7 +30,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
-          node-version: 22
+          node-version: 24
           cache: pnpm
 
       - name: Install dependencies
@@ -96,6 +96,30 @@ jobs:
           echo "pdf.js worker /$worker_path Content-Type: $worker_type"
           [ "$worker_type" = "application/javascript" ] || exit 1
 
+      - name: Scan the image for vulnerabilities
+        uses: anchore/scan-action@27805bf3b4e84b4a5c980df22ed233c00390a439 # v7.4.2
+        with:
+          image: privatepdf:ci
+          fail-build: true
+          severity-cutoff: high
+          output-format: table
+
       - name: Show container logs on failure
         if: failure()
         run: docker logs privatepdf || true
+
+  workflows:
+    name: Audit workflows
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Run zizmor
+        uses: zizmorcore/zizmor-action@53290badfa369cb0bf7ad16342cb62c2fa47ac7b # v0.8.0
+        with:
+          # Fail the job on findings instead of uploading them to code scanning
+          advanced-security: false

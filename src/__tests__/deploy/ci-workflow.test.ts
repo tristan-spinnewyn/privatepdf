@@ -29,6 +29,22 @@ describe('CI workflow', () => {
     expect(workflow).toMatch(/pnpm audit --audit-level high/);
   });
 
+  it('scans the built image for high and critical vulnerabilities', () => {
+    expect(workflow).toMatch(/uses:\s*anchore\/scan-action@/);
+    expect(workflow).toMatch(/severity-cutoff:\s*high/);
+    expect(workflow).toMatch(/fail-build:\s*true/);
+  });
+
+  it('audits the GitHub Actions workflows with zizmor', () => {
+    expect(workflow).toMatch(/uses:\s*zizmorcore\/zizmor-action@/);
+  });
+
+  it('uses the same Node major as the Docker build stage', () => {
+    const dockerfile = readFileSync(resolve(process.cwd(), 'Dockerfile'), 'utf8');
+    const dockerNodeMajor = dockerfile.match(/^FROM\s+node:(\d+)\./m)?.[1];
+    expect(workflow).toMatch(new RegExp(`node-version:\\s*${dockerNodeMajor}\\b`));
+  });
+
   it('runs the built image and checks the healthcheck, worker MIME type and CSP', () => {
     expect(workflow).toMatch(/load:\s*true/);
     expect(workflow).toMatch(/docker run[^\n]*-p\s+\d+:3000/);

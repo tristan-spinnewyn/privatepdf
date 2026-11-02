@@ -39,8 +39,8 @@ describe('Dockerfile', () => {
     }
   });
 
-  it('builds with Node 22', () => {
-    expect(baseImages(dockerfile)[0]).toMatch(/^node:22\./);
+  it('builds with Node 24, the active LTS that still ships corepack', () => {
+    expect(baseImages(dockerfile)[0]).toMatch(/^node:24\./);
   });
 
   it('serves the app with the unprivileged nginx image', () => {
