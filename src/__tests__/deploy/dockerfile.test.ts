@@ -5,6 +5,7 @@ import { resolve } from 'node:path';
 const dockerfile = readFileSync(resolve(process.cwd(), 'Dockerfile'), 'utf8');
 const nginxConfig = readFileSync(resolve(process.cwd(), 'nginx.conf'), 'utf8');
 const composeFile = readFileSync(resolve(process.cwd(), 'docker-compose.yml'), 'utf8');
+const dockerignore = readFileSync(resolve(process.cwd(), '.dockerignore'), 'utf8');
 const packageJson = JSON.parse(readFileSync(resolve(process.cwd(), 'package.json'), 'utf8')) as {
   packageManager?: string;
 };
@@ -68,5 +69,26 @@ describe('Dockerfile', () => {
 
   it('publishes the application port in docker-compose', () => {
     expect(composeContainerPorts(composeFile)).toEqual([APP_PORT]);
+  });
+});
+
+describe('Docker build context', () => {
+  it('leaves out local worktrees, reports, secrets and files the image does not need', () => {
+    const ignored = dockerignore.split(/\r?\n/).map((line) => line.trim());
+    for (const entry of ['.claude', 'coverage', '.env*', '.github', 'e2e', 'playwright-report', 'test-results']) {
+      expect(ignored).toContain(entry);
+    }
+  });
+});
+
+describe('docker-compose hardening', () => {
+  it('runs the container with a read-only root filesystem and a writable tmpfs for nginx', () => {
+    expect(composeFile).toMatch(/^\s*read_only:\s*true\s*$/m);
+    expect(composeFile).toMatch(/^\s*tmpfs:\s*\n\s*-\s*\/tmp\s*$/m);
+  });
+
+  it('drops every Linux capability and forbids privilege escalation', () => {
+    expect(composeFile).toMatch(/^\s*cap_drop:\s*\n\s*-\s*ALL\s*$/m);
+    expect(composeFile).toMatch(/^\s*security_opt:\s*\n\s*-\s*no-new-privileges:true\s*$/m);
   });
 });
