@@ -45,6 +45,12 @@ describe('CI workflow', () => {
     expect(workflow).toMatch(new RegExp(`node-version:\\s*${dockerNodeMajor}\\b`));
   });
 
+  it('runs the end-to-end suite against the built image', () => {
+    expect(workflow).toMatch(/playwright install --with-deps chromium/);
+    expect(workflow).toMatch(/E2E_BASE_URL:\s*http:\/\/localhost:8080/);
+    expect(workflow).toMatch(/pnpm test:e2e/);
+  });
+
   it('runs the built image and checks the healthcheck, worker MIME type and CSP', () => {
     expect(workflow).toMatch(/load:\s*true/);
     expect(workflow).toMatch(/docker run[^\n]*-p\s+\d+:3000/);
