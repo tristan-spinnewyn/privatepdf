@@ -115,6 +115,10 @@ describe('nginx configuration', () => {
       expect(headerValue('Cross-Origin-Opener-Policy')).toBe('same-origin');
     });
 
+    it('forbids other origins from embedding the app resources', () => {
+      expect(headerValue('Cross-Origin-Resource-Policy')).toBe('same-origin');
+    });
+
     it('hides the nginx version', () => {
       expect(config).toMatch(/^\s*server_tokens\s+off;/m);
     });
