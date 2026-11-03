@@ -12,6 +12,9 @@ const packageJson = JSON.parse(readFileSync(resolve(process.cwd(), 'package.json
 // Container port Coolify routes production traffic to ("Ports Exposes" setting)
 const APP_PORT = 3000;
 
+// Everything from the last FROM on: the stage that ends up in the published image
+const runnerStage = dockerfile.slice(dockerfile.lastIndexOf('\nFROM '));
+
 function baseImages(source: string): string[] {
   return [...source.matchAll(/^FROM\s+(\S+)/gm)].map((match) => match[1]);
 }
@@ -45,7 +48,19 @@ describe('Dockerfile', () => {
 
   it('serves the app with the unprivileged nginx image', () => {
     expect(baseImages(dockerfile).at(-1)).toMatch(/^nginxinc\/nginx-unprivileged:/);
-    expect(dockerfile).not.toMatch(/^USER\s+(root|0)\b/m);
+  });
+
+  it('runs nginx as the unprivileged user, even after switching to root to patch packages', () => {
+    const users = [...runnerStage.matchAll(/^USER\s+(\S+)/gm)].map((match) => match[1]);
+    if (users.length > 0) expect(users.at(-1)).toBe('101');
+  });
+
+  it('installs the Alpine security fixes released after the base image was built', () => {
+    expect(runnerStage).toMatch(/^RUN\s+apk upgrade --no-cache\b/m);
+  });
+
+  it('removes curl, which the image never uses (the healthcheck uses busybox wget)', () => {
+    expect(runnerStage).toMatch(/apk del --no-cache curl\b/);
   });
 
   it('installs the pnpm version pinned in package.json through corepack', () => {
