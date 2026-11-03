@@ -20,6 +20,17 @@ test('merges two PDFs, counting their pages with the pdf.js worker', async ({ pa
   expect(merged.getPageCount()).toBe(5)
 })
 
+test('explains that an encrypted PDF cannot be merged', async ({ page }) => {
+  await page.locator('input[type=file]').setInputFiles([
+    pdfUpload('plain.pdf', await createPdf(1)),
+    pdfUpload('locked.pdf', await createPdf(1, { encrypted: true })),
+  ])
+
+  await page.getByRole('button', { name: 'Merge 2 PDFs' }).click()
+
+  await expect(page.getByText('"locked.pdf" is password-protected or encrypted.', { exact: false })).toBeVisible()
+})
+
 test('renders every page of a PDF to images', async ({ page }) => {
   await page.getByRole('button', { name: 'PDF -> Images' }).click()
   // Tools are lazy-loaded: until then the previous tool's file input is still on the page

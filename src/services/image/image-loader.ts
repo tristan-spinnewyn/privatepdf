@@ -1,3 +1,5 @@
+import { ImageTooLargeError, MAX_IMAGE_PIXELS } from './image-errors';
+
 /**
  * Checks if a file is an Apple iOS HEIC / HEIF format
  */
@@ -35,6 +37,10 @@ export async function loadImageElement(file: File): Promise<HTMLImageElement> {
     const url = URL.createObjectURL(blob);
     img.onload = () => {
       URL.revokeObjectURL(url);
+      if (img.naturalWidth * img.naturalHeight > MAX_IMAGE_PIXELS) {
+        reject(new ImageTooLargeError(file.name));
+        return;
+      }
       resolve(img);
     };
     img.onerror = () => {

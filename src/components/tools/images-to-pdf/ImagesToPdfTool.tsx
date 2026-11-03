@@ -25,7 +25,7 @@ export const ImagesToPdfTool: React.FC = () => {
   const [options, setOptions] = useState<ImagesToPdfOptions>({ orientation: 'auto', margin: 'normal' });
   const [outputFileName, setOutputFileName] = useState(DEFAULT_OUTPUT_NAME);
   const [isProcessing, setIsProcessing] = useState(false);
-  const { successMessage, errorMessage, showSuccess, showError, resetFeedback } = useToolFeedback();
+  const { successMessage, errorMessage, showSuccess, showProcessingError, resetFeedback } = useToolFeedback();
 
   const handleImagesSelected = (files: File[]) => {
     const newItems: ImageItem[] = files.map((file) => ({
@@ -69,8 +69,7 @@ export const ImagesToPdfTool: React.FC = () => {
       fireSuccessConfetti();
       showSuccess(t('tools.imagesToPdf.success', { count: items.length }));
     } catch (err) {
-      console.error(err);
-      showError(t('tools.imagesToPdf.error'));
+      showProcessingError(err, t('tools.imagesToPdf.error'));
     } finally {
       setIsProcessing(false);
     }

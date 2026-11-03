@@ -24,7 +24,7 @@ export const OrganizeTool: React.FC = () => {
   const [file, setFile] = useState<File | null>(null);
   const [isLoadingThumbnails, setIsLoadingThumbnails] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
-  const { successMessage, errorMessage, showSuccess, showError, resetFeedback } = useToolFeedback();
+  const { successMessage, errorMessage, showSuccess, showError, showProcessingError, resetFeedback } = useToolFeedback();
   const { pages, remainingCount, loadPages, clearPages, rotatePage, rotateAll, toggleDeletePage, movePage } =
     useOrganizePages();
   useReleasePdfDocument(file);
@@ -59,8 +59,7 @@ export const OrganizeTool: React.FC = () => {
       fireSuccessConfetti();
       showSuccess(t('tools.organize.success'));
     } catch (err) {
-      console.error(err);
-      showError(t('tools.organize.error'));
+      showProcessingError(err, t('tools.organize.error'));
     } finally {
       setIsProcessing(false);
     }

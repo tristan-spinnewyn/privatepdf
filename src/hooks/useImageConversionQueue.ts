@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { ImageConversionItem, ImageFormat } from '../types';
 import { convertImage, isHeicFile } from '../services/image';
+import { describeProcessingError } from '../i18n/processing-error-message';
 import { createItemId } from '../utils/item-id';
 
 export interface ConversionSettings {
@@ -92,7 +93,7 @@ export function useImageConversionQueue() {
         updatedItems[i] = {
           ...item,
           status: 'error',
-          error: t('tools.imageConverter.error'),
+          error: describeProcessingError(err, t, t('tools.imageConverter.error')),
         };
       }
       setItems([...updatedItems]);

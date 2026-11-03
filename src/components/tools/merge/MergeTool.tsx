@@ -21,7 +21,7 @@ export const MergeTool: React.FC = () => {
   const [items, setItems] = useState<PdfFileItem[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
   const [outputFileName, setOutputFileName] = useState(DEFAULT_OUTPUT_NAME);
-  const { successMessage, errorMessage, showSuccess, showError, resetFeedback } = useToolFeedback();
+  const { successMessage, errorMessage, showSuccess, showProcessingError, resetFeedback } = useToolFeedback();
 
   const handleFilesAdded = async (newFiles: File[]) => {
     const newItems: PdfFileItem[] = newFiles.map((file) => ({
@@ -71,8 +71,7 @@ export const MergeTool: React.FC = () => {
       fireSuccessConfetti();
       showSuccess(t('tools.merge.success', { count: items.length }));
     } catch (err) {
-      console.error(err);
-      showError(t('tools.merge.error'));
+      showProcessingError(err, t('tools.merge.error'));
     } finally {
       setIsProcessing(false);
     }

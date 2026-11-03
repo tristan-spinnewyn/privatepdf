@@ -215,5 +215,9 @@
       "success": "{{count}} page(s) converted to images!",
       "error": "An error occurred while extracting images from the PDF document."
     }
+  },
+  "errors": {
+    "encryptedPdf": "\"{{name}}\" is password-protected or encrypted. Remove the protection, then try again.",
+    "imageTooLarge": "\"{{name}}\" is too large to be processed in the browser (over 100 megapixels)."
   }
 }

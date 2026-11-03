@@ -21,3 +21,12 @@ export async function createPdfFile(pageCount: number, name = 'doc.pdf', size: [
 export function loadPdf(bytes: Uint8Array) {
   return PDFDocument.load(bytes);
 }
+
+// pdf-lib cannot encrypt: an /Encrypt entry in the trailer is enough for it to report the file as encrypted
+export async function createEncryptedPdfFile(name = 'secret.pdf') {
+  const doc = await PDFDocument.create();
+  doc.addPage();
+  doc.context.trailerInfo.Encrypt = doc.context.obj({ Filter: 'Standard', V: 2, R: 3 });
+  const bytes = await doc.save();
+  return new File([bytes as unknown as BlobPart], name, { type: 'application/pdf' });
+}

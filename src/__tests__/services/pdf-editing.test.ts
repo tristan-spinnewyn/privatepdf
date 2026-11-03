@@ -1,5 +1,6 @@
 import { mergePdfs, organizePdf, splitPdf, signAndDatePdf } from '../../services/pdf';
-import { createPdfFile, loadPdf, PNG_DATA_URL } from '../fixtures';
+import { EncryptedPdfError } from '../../services/pdf/pdf-errors';
+import { createEncryptedPdfFile, createPdfFile, loadPdf, PNG_DATA_URL } from '../fixtures';
 
 describe('mergePdfs', () => {
   it('concatenates every page of every file in order', async () => {
@@ -11,6 +12,16 @@ describe('mergePdfs', () => {
     expect(merged.getPageCount()).toBe(5);
     expect(merged.getPage(0).getWidth()).toBe(100);
     expect(merged.getPage(4).getWidth()).toBe(200);
+  });
+
+  it('refuses encrypted files, which pdf-lib would turn into an unreadable document', async () => {
+    const plain = await createPdfFile(1);
+    const encrypted = await createEncryptedPdfFile('locked.pdf');
+
+    const merging = mergePdfs([plain, encrypted]);
+
+    await expect(merging).rejects.toBeInstanceOf(EncryptedPdfError);
+    await expect(merging).rejects.toMatchObject({ fileName: 'locked.pdf' });
   });
 });
 
