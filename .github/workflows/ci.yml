@@ -101,6 +101,8 @@ jobs:
         with:
           image: privatepdf:ci
           fail-build: true
+          # Only fail on vulnerabilities that have a released fix: others cannot be acted on
+          only-fixed: true
           severity-cutoff: high
           output-format: table
 

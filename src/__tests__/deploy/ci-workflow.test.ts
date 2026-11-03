@@ -33,6 +33,8 @@ describe('CI workflow', () => {
     expect(workflow).toMatch(/uses:\s*anchore\/scan-action@/);
     expect(workflow).toMatch(/severity-cutoff:\s*high/);
     expect(workflow).toMatch(/fail-build:\s*true/);
+    // Vulnerabilities without a released fix cannot be acted on and must not block every PR
+    expect(workflow).toMatch(/only-fixed:\s*true/);
   });
 
   it('audits the GitHub Actions workflows with zizmor', () => {

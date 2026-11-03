@@ -21,6 +21,12 @@ RUN pnpm run build
 # Production serve stage: nginx running as a non-root user (uid 101)
 FROM nginxinc/nginx-unprivileged:1.30.6-alpine3.24 AS runner
 
+# The base image is only rebuilt for new nginx releases: pull in the Alpine security fixes
+# published since, and drop curl, which nothing uses (the healthcheck uses busybox wget)
+USER root
+RUN apk upgrade --no-cache && apk del --no-cache curl
+USER 101
+
 # Copy customized Nginx configuration with SPA support & gzip
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 COPY nginx/security-headers.conf /etc/nginx/snippets/security-headers.conf
