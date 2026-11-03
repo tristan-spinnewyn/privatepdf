@@ -6,3 +6,10 @@ dist
 *.log
 .DS_Store
 Thumbs.db
+coverage
+.env*
+.github
+.claude
+e2e
+playwright-report
+test-results
