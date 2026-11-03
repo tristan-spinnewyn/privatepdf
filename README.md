@@ -10,8 +10,8 @@ Most free online PDF utilities (like Smallpdf or iLovePDF) upload your documents
 
 **PrivatePDF runs entirely on your device:**
 - 💻 **Client-Side Processing**: Operations are powered by WebAssembly & JavaScript (`pdf-lib` and `pdfjs-dist`).
-- 📶 **Works 100% Offline**: Cut your internet connection or Wi-Fi, everything continues to work seamlessly.
-- 🚀 **Zero Upload Delays**: No network bottlenecks, no file size caps, and no page limits.
+- 📶 **Works Offline Once Loaded**: No file ever goes over the network. Each tool (and the HEIC decoder and ZIP library) is downloaded the first time you open it; after that it keeps working without a connection. There is no service worker, so the app itself must first be loaded online.
+- 🚀 **Zero Upload Delays**: No network bottlenecks, no file size caps, and no page limits (only images above 100 megapixels are refused, as they would crash the browser tab).
 - 🛡️ **Zero Data Leakage**: Your files never leave your computer.
 
 ---
@@ -136,7 +136,7 @@ PrivatePDF is 100% self-hostable with **Coolify** in just a few clicks:
 2. Enter your repository URL (e.g. `https://github.com/tristan-spinnewyn/privatepdf` or SSH URL).
 3. Coolify will automatically detect the **Dockerfile**.
 4. Configure your domain (e.g. `https://pdf.yourdomain.com`).
-5. Set port to `80` (automatically detected).
+5. Set the exposed port to `3000`.
 6. Click **Deploy**! Coolify will handle SSL/TLS certificates and automatic reverse proxying.
 
 ### Method 2: Docker Compose
@@ -147,6 +147,17 @@ Access the application at `http://localhost:8080`.
 
 ---
 
+## 🔐 Security
+
+- **Strict Content-Security-Policy**: no external origin, no inline script, no `eval`.
+- **Hardened container**: unprivileged nginx, read-only filesystem and no Linux capabilities in `docker-compose.yml`.
+- **CI on every pull request**: dependency audit, lint, unit tests with coverage, Docker image vulnerability scan (Grype), end-to-end tests that fail on any CSP violation, and a workflow audit (zizmor).
+- **Supply chain**: actions pinned by commit SHA, Dependabot updates held for 7 days and pnpm refusing packages published less than 3 days ago.
+
+To report a vulnerability, see [SECURITY.md](SECURITY.md).
+
+---
+
 ## 📄 License
 
-MIT
+[MIT](LICENSE)
