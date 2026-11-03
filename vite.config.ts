@@ -4,6 +4,7 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import { pdfjsAssets } from './vite-plugins/pdfjs-assets.ts'
+import { readNginxSecurityHeaders } from './vite-plugins/nginx-security-headers.ts'
 import { PDFJS_ASSETS_BASE_PATH, PDFJS_ASSET_FOLDERS } from './src/config/pdfjs-assets.ts'
 
 const require = createRequire(import.meta.url)
@@ -19,4 +20,8 @@ export default defineConfig({
       basePath: PDFJS_ASSETS_BASE_PATH,
     }),
   ],
+  // Same headers as production, so the end-to-end tests run under the real CSP
+  preview: {
+    headers: readNginxSecurityHeaders('nginx/security-headers.conf'),
+  },
 })

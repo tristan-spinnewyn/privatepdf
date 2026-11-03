@@ -96,7 +96,11 @@ Open `http://localhost:5173` in your browser.
 ```bash
 pnpm test           # Vitest unit and component tests
 pnpm test:coverage  # with coverage (80% minimum)
+pnpm test:e2e       # Playwright end-to-end tests in Chromium, under the production CSP
 ```
+Before the first end-to-end run, install the browser with `pnpm exec playwright install chromium`.
+Locally the end-to-end tests run against `vite preview`, which sends the same security headers as
+nginx; in CI they run against the production Docker image.
 
 ### Project Structure
 ```
