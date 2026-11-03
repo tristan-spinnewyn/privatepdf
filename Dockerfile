@@ -6,8 +6,8 @@ WORKDIR /app
 # Use the pnpm version pinned in package.json ("packageManager")
 RUN corepack enable
 
-# Copy dependency configuration
-COPY package.json pnpm-lock.yaml ./
+# Copy dependency configuration (pnpm-workspace.yaml holds the pnpm settings)
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 
 # Install dependencies strictly according to lockfile
 RUN pnpm install --frozen-lockfile

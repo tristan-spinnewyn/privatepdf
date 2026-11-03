@@ -1,0 +1,6 @@
+# pnpm settings for this single-package project (no workspace packages)
+
+# Refuse versions published less than 3 days ago (in minutes), also when installing from the
+# lockfile: compromised releases are usually detected and unpublished within days. A hard floor
+# under the 7-day Dependabot cooldown, which also covers manual "pnpm add" and "pnpm update".
+minimumReleaseAge: 4320
